@@ -1,9 +1,9 @@
 import { Alert, AlertTitle } from "@/components/ui/alert";
-import { useEmployeeSearchResultStore } from "@/store/special-earnings/employee-search-result-store";
+import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
 import { AlertCircleIcon } from "lucide-react";
 
 export default function EmployeeSearchError() {
-  const { error } = useEmployeeSearchResultStore();
+  const { error } = useGetEmployeeResponseStore();
 
   return (
     <Alert variant="destructive">

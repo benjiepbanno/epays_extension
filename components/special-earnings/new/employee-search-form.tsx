@@ -4,8 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useEmployeeSearchResultStore } from "@/store/special-earnings/employee-search-result-store";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,28 +13,27 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Info, Loader, Search } from "lucide-react";
+import { Search } from "lucide-react";
+
+import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
 
 const formSchema = z.object({
   employee_number: z.string().min(1, "Required"),
 });
 
 export default function EmployeeSearchForm() {
-  const {
-    employee_search_result,
-    is_loading,
-    fetchAndSetEmployeeSearchResult,
-  } = useEmployeeSearchResultStore();
+  const { response, is_loading, fetchAndSetResponse } =
+    useGetEmployeeResponseStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      employee_number: employee_search_result.body.employee_number || "",
+      employee_number: response.body?.employee_number ?? "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    fetchAndSetEmployeeSearchResult(values);
+    fetchAndSetResponse(values);
   }
 
   return (
@@ -57,7 +54,7 @@ export default function EmployeeSearchForm() {
           />
 
           <div className="">
-            <Button type="submit" disabled={is_loading} className="">
+            <Button type="submit" variant="secondary" disabled={is_loading}>
               <Search />
               Search
             </Button>

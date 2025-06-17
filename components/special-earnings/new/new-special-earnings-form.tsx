@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { MONTHS, YEARS } from "@/lib/special-earnings/date";
-import { useEmployeeSearchResultStore } from "@/store/special-earnings/employee-search-result-store";
+import { postSpecialEarnings } from "@/actions/special-earnings-actions";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,12 +24,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { CirclePlus, CircleX } from "lucide-react";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
+import { getAppointmentStatus } from "@/lib/special-earnings/utils";
+import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
 
 const formSchema = z.object({
   employee_number: z.string().min(1, "Required"),
-  earning_code: z.string({
+  appointment_status_code: z.string().min(1, "Required"),
+  earnings_status_code: z.string().min(1, "Required"),
+  earnings_code: z.string({
     required_error: "Required",
   }),
   amount: z.coerce.number().positive("Amount must be greater than 0"),
@@ -45,25 +49,22 @@ const formSchema = z.object({
   month_to: z.string({
     required_error: "Required",
   }),
-  description: z.string().min(1, "Required"),
 });
 
-export default function EncodeForm() {
-  const { employee_search_result } = useEmployeeSearchResultStore();
+export default function NewSpecialEarningsForm() {
+  const { response } = useGetEmployeeResponseStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      employee_number: employee_search_result.body.employee_number,
+      employee_number: response.body?.employee_number,
+      appointment_status_code: response.body?.appointment_status_code,
+      earnings_status_code: "1",
       amount: 0,
       year_from: "2025",
       year_to: "2025",
     },
   });
-
-  // useEffect(() => {
-  //   form.setValue("employee_number", employee_number);
-  // }, [employee_number]);
 
   const watchMonthFrom = form.watch("month_from");
   const watchYearFrom = form.watch("year_from");
@@ -92,57 +93,82 @@ export default function EncodeForm() {
     return false;
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    const formattedAmount = parseFloat(values.amount.toFixed(2));
-    console.log({ ...values, amount: formattedAmount });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const promise = async () => {
+      const response = await postSpecialEarnings(values);
+      if (response.error) throw new Error(response.error);
+
+      return response.body;
+    };
+
+    toast.promise(promise(), {
+      loading: "Adding new special earnings...",
+      success: () => "Special earnings successfully added.",
+      error: (error) => error.message || "Failed to add special earnings.",
+    });
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-2 gap-4">
+          {/* Employee Name */}
           <div className="col-span-2">
             <FormField
               control={form.control}
               name="employee_number"
-              render={({ field }) => (
+              render={({}) => (
                 <FormItem>
-                  <FormLabel>Employee</FormLabel>
+                  <FormLabel>Employee Name</FormLabel>
                   <FormControl>
-                    <Input disabled {...field} />
+                    <Input disabled value={response.body?.employee_name} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-
-          <div>
+          {/* Appointment Status */}
+          <div className="col-span-1">
             <FormField
               control={form.control}
-              name="earning_code"
+              name="appointment_status_code"
+              render={({}) => (
+                <FormItem>
+                  <FormLabel>Appointment Status</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled
+                      value={getAppointmentStatus(
+                        response.body?.appointment_status_code
+                      )}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          {/* Earnings Status */}
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="earnings_status_code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Earning Code</FormLabel>
+                  <FormLabel>Earnings Status</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select an earning code" />
+                        <SelectValue placeholder="Select an earnings status" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="m@example.com">
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value="m@google.com">m@google.com</SelectItem>
-                      <SelectItem value="m@support.com">
-                        m@support.com
-                      </SelectItem>
+                      <SelectItem value="1">Active</SelectItem>
+                      <SelectItem value="0">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -150,8 +176,36 @@ export default function EncodeForm() {
               )}
             />
           </div>
-
-          <div>
+          {/* Earnings Code */}
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="earnings_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Earnings Code</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select an earnings code" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="AB">m@example.com</SelectItem>
+                      <SelectItem value="BC">m@google.com</SelectItem>
+                      <SelectItem value="CD">m@support.com</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          {/* Amount */}
+          <div className="col-span-1">
             <FormField
               control={form.control}
               name="amount"
@@ -170,8 +224,8 @@ export default function EncodeForm() {
               )}
             />
           </div>
-
-          <div className="grid grid-cols-8 gap-1">
+          {/* Period From */}
+          <div className="col-span-1 grid grid-cols-8 gap-1">
             <div className="col-span-8 text-sm font-medium">Period From</div>
             <div className="col-span-3">
               <FormField
@@ -254,8 +308,8 @@ export default function EncodeForm() {
               />
             </div>
           </div>
-
-          <div className="grid grid-cols-8 gap-1">
+          {/* Period To */}
+          <div className="col-span-1 grid grid-cols-8 gap-1">
             <div className="col-span-8 text-sm font-medium">Period To</div>
             <div className="col-span-3">
               <FormField
@@ -335,28 +389,9 @@ export default function EncodeForm() {
             </div>
           </div>
 
-          <div className="col-span-2">
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Input a description"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
           <div className="col-span-2 flex flex-row gap-4 justify-end">
             <Button type="submit">
-              <CirclePlus />
+              <Plus />
               Add
             </Button>
           </div>

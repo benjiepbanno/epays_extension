@@ -1,11 +1,12 @@
-import EncodeDialog from "@/components/special-earnings/encode/encode-dialog";
+import NewSpecialEarningsDialog from "@/components/special-earnings/new/new-special-earnings-dialog";
+
 
 export default function Page() {
   return (
     <div className="p-16 space-y-16">
       <div className="text-4xl">Special Earnings</div>
 
-      <EncodeDialog />
+      <NewSpecialEarningsDialog />
     </div>
   );
 }
