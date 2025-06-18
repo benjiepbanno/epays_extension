@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 
-import EmployeeSearchForm from "./employee-search-form";
-import EmployeeSearchError from "./employee-search-error";
+import EmployeeForm from "./employee-form";
+import EmployeeFormError from "./employee-form-error";
 import NewSpecialEarningsFormSkeleton from "./new-special-earnings-form-skeleton";
 import NewSpecialEarningsForm from "./new-special-earnings-form";
 
@@ -39,7 +39,7 @@ export default function NewSpecialEarningsDialog() {
         </DialogHeader>
 
         <div className="flex flex-col gap-4 min-h-102">
-          <EmployeeSearchForm />
+          <EmployeeForm />
 
           {is_loading ? (
             <div className="flex flex-col justify-end h-full">
@@ -47,7 +47,7 @@ export default function NewSpecialEarningsDialog() {
             </div>
           ) : error ? (
             <div className="flex flex-col justify-start h-full">
-              <EmployeeSearchError />
+              <EmployeeFormError />
             </div>
           ) : response.body ? (
             <div className="flex flex-col justify-end h-full">

@@ -1,3 +1,9 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { modules } from "@/lib/modules";
+
 import {
   Sidebar,
   SidebarContent,
@@ -9,31 +15,25 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
+import {
+  DiamondPercent,
+} from "lucide-react";
 
-import { BanknoteArrowUp, Home } from "lucide-react";
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Special Earnings",
-    url: "/special-earnings",
-    icon: BanknoteArrowUp,
-  },
-];
-
-export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>EPAYS Extension</SidebarMenuItem>
-        </SidebarMenu>
+    <Sidebar {...props}>
+      <SidebarHeader className="grid h-16 border-b">
+        <div className="flex gap-2 items-center px-2">
+          <DiamondPercent />
+          <div className="flex items-start gap-1">
+            <span className="text-xl font-bold"><i>e</i>PAYS</span>
+            <div className="text-xs">extension</div>
+          </div>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -41,20 +41,24 @@ export function AppSidebar() {
           <SidebarGroupLabel>Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {modules.map((module) => {
+                const isActive = pathname === module.url;
+
+                return (
+                  <SidebarMenuItem key={module.title}>
+                    <SidebarMenuButton asChild isActive={isActive}>
+                      <Link href={module.url}>
+                        <span>{module.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarRail />
     </Sidebar>
   );
 }

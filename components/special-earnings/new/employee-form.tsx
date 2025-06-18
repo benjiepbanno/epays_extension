@@ -21,7 +21,7 @@ const formSchema = z.object({
   employee_number: z.string().min(1, "Required"),
 });
 
-export default function EmployeeSearchForm() {
+export default function EmployeeForm() {
   const { response, is_loading, fetchAndSetResponse } =
     useGetEmployeeResponseStore();
 
