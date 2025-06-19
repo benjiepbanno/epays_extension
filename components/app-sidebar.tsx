@@ -31,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <DiamondPercent />
           <div className="flex items-start gap-1">
             <span className="text-xl font-bold"><i>e</i>PAYS</span>
-            <div className="text-xs">extension</div>
+            <div className="text-xs italic">extension</div>
           </div>
         </div>
       </SidebarHeader>
