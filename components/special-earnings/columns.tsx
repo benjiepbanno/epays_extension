@@ -4,17 +4,20 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../data-table-reusable-components/data-table-column-header";
 import { SpecialEarnings } from "@/lib/special-earnings/schema";
 
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+  appointment_statuses,
+  earnings_statuses,
+} from "@/lib/special-earnings/data";
+import { Badge } from "../ui/badge";
+import { DataTableRowActions } from "./data-table-row-actions";
+import {
+  Circle,
+  CircleSmall,
+  CircleSmallIcon,
+  Dot,
+  DotIcon,
+} from "lucide-react";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   {
@@ -46,11 +49,16 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Employee Number" />
     ),
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     accessorKey: "employee_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Employee Name" />
+    ),
+    cell: ({ row }) => (
+      <div className="w-[300px]">{row.getValue("employee_name")}</div>
     ),
   },
   {
@@ -58,6 +66,23 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Appointment Status" />
     ),
+    cell: ({ row }) => {
+      const appointment_status = appointment_statuses.find(
+        (appointment_status) =>
+          appointment_status.value === row.original.appointment_status_code
+      );
+
+      return (
+        <div>
+          {appointment_status && (
+            <Badge variant="outline">{appointment_status.label}</Badge>
+          )}
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: "earnings_code",
@@ -77,7 +102,7 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
         currency: "PHP",
       }).format(amount);
 
-      return <div className="">{formatted}</div>;
+      return <div>{formatted}</div>;
     },
   },
   {
@@ -97,34 +122,34 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Earnings Status" />
     ),
+    cell: ({ row }) => {
+      const earnings_status = earnings_statuses.find(
+        (earnings_status) =>
+          earnings_status.value === row.original.earnings_status_code
+      );
+
+      return (
+        <div>
+          {earnings_status && (
+            <div className="flex gap-2 items-center">
+              <div className="inline-grid *:[grid-area:1/1]">
+                <div
+                  className={`status status-lg ${earnings_status.css} animate-ping`}
+                ></div>
+                <div className={`status status-lg ${earnings_status.css}`}></div>
+              </div>
+              <div className="">{earnings_status.label}</div>
+            </div>
+          )}
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const special_earnings = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(special_earnings.id.toString())
-              }
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ];

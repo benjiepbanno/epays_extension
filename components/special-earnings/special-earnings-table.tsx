@@ -14,7 +14,6 @@ type Props = {
 export default function SpecialEarningsTable({ special_earnings }: Props) {
   return (
     <div>
-      <NewSpecialEarningsDialog />
       <DataTable columns={columns} data={special_earnings} />
     </div>
   );

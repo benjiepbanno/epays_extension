@@ -24,7 +24,7 @@ export default function NewSpecialEarningsDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
+        <Button size="sm">
           <Plus />
           New
         </Button>

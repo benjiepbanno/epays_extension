@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-const specialEarningsSchema = z.object({
+export const specialEarningsSchema = z.object({
   id: z.number(),
   employee_number: z.string(),
-  employee_name: z.string(),
+  employee_name: z.string().nullable(),
   appointment_status_code: z.string(),
   earnings_status_code: z.string(),
   earnings_code: z.string(),

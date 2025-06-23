@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,6 +29,7 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { getAppointmentStatus } from "@/lib/special-earnings/utils";
 import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
+import { DialogFooter } from "@/components/ui/dialog";
 
 const formSchema = z.object({
   employee_number: z.string().min(1, "Required"),
@@ -107,6 +109,8 @@ export default function NewSpecialEarningsForm() {
       error: (error) => error.message || "Failed to add special earnings.",
     });
   }
+
+  const router = useRouter();
 
   return (
     <Form {...form}>
@@ -389,11 +393,13 @@ export default function NewSpecialEarningsForm() {
             </div>
           </div>
 
-          <div className="col-span-2 flex flex-row gap-4 justify-end">
-            <Button type="submit">
-              <Plus />
-              Add
-            </Button>
+          <div className="col-span-2">
+            <DialogFooter>
+              <Button type="submit">
+                <Plus />
+                Add
+              </Button>
+            </DialogFooter>
           </div>
         </div>
       </form>

@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 export async function getAllSpecialEarnings() {
   try {
     const API_BASE_URL =
@@ -68,6 +70,8 @@ export async function postSpecialEarnings(values: {
     }
 
     const data = await response.json();
+
+    revalidatePath("/posts");
 
     return {
       body: data.body,
