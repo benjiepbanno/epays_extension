@@ -11,13 +11,6 @@ import {
 } from "@/lib/special-earnings/data";
 import { Badge } from "../ui/badge";
 import { DataTableRowActions } from "./data-table-row-actions";
-import {
-  Circle,
-  CircleSmall,
-  CircleSmallIcon,
-  Dot,
-  DotIcon,
-} from "lucide-react";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   {
@@ -80,6 +73,8 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
         </div>
       );
     },
+    enableSorting: false,
+    enableHiding: false,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
@@ -89,6 +84,8 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Earnings Code" />
     ),
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     accessorKey: "amount",
@@ -133,10 +130,15 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
           {earnings_status && (
             <div className="flex gap-2 items-center">
               <div className="inline-grid *:[grid-area:1/1]">
+                {earnings_status.value === "1" && (
+                  <div
+                    className={`status status-lg ${earnings_status.css} animate-ping`}
+                  ></div>
+                )}
+
                 <div
-                  className={`status status-lg ${earnings_status.css} animate-ping`}
+                  className={`status status-lg ${earnings_status.css}`}
                 ></div>
-                <div className={`status status-lg ${earnings_status.css}`}></div>
               </div>
               <div className="">{earnings_status.label}</div>
             </div>
@@ -144,6 +146,8 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
         </div>
       );
     },
+    enableSorting: false,
+    enableHiding: false,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },

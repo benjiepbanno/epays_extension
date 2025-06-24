@@ -17,6 +17,7 @@ import EmployeeForm from "./employee-form";
 import EmployeeFormError from "./employee-form-error";
 import NewSpecialEarningsFormSkeleton from "./new-special-earnings-form-skeleton";
 import NewSpecialEarningsForm from "./new-special-earnings-form";
+import ErrorAlert from "../error-alert";
 
 export default function NewSpecialEarningsDialog() {
   const { response, is_loading, error } = useGetEmployeeResponseStore();
@@ -47,7 +48,7 @@ export default function NewSpecialEarningsDialog() {
             </div>
           ) : error ? (
             <div className="flex flex-col justify-start h-full">
-              <EmployeeFormError />
+              <ErrorAlert error={error} />
             </div>
           ) : response.body ? (
             <div className="flex flex-col justify-end h-full">

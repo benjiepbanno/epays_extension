@@ -19,6 +19,6 @@ export const earnings_statuses = [
   {
     value: "0",
     label: "Inactive",
-    css: "status-warning"
+    css: "status-neutral"
   },
 ]

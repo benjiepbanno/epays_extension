@@ -1,4 +1,4 @@
-import { getAllSpecialEarnings } from "@/actions/special-earnings-actions";
+import { getSpecialEarnings } from "@/actions/special-earnings-actions";
 import { create } from "zustand";
 
 type Response = {
@@ -10,7 +10,7 @@ type ResponseState = {
   is_loading: boolean;
   error: string | null;
 
-  fetchAndSetResponse: () => Promise<void>;
+  fetchAndSetResponse: (params: { special_earnings_id: number }) => Promise<void>;
 };
 
 export const useGetResponseStore = create<ResponseState>()((set) => ({
@@ -18,11 +18,11 @@ export const useGetResponseStore = create<ResponseState>()((set) => ({
   is_loading: false,
   error: null,
 
-  fetchAndSetResponse: async () => {
+  fetchAndSetResponse: async (params) => {
     set({ response: { body: null }, is_loading: true, error: null });
 
     try {
-      const { body, error } = await getAllSpecialEarnings();
+      const { body, error } = await getSpecialEarnings(params);
 
       if (error) {
         set({
