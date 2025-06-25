@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +14,23 @@ import {
 import { Plus } from "lucide-react";
 
 import EmployeeForm from "./employee-form";
-import EmployeeFormError from "./employee-form-error";
-import NewSpecialEarningsFormSkeleton from "./new-special-earnings-form-skeleton";
 import NewSpecialEarningsForm from "./new-special-earnings-form";
+import NewSpecialEarningsFormSkeleton from "./new-special-earnings-form-skeleton";
 import ErrorAlert from "../error-alert";
 
+import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+
 export default function NewSpecialEarningsDialog() {
-  const { response, is_loading, error } = useGetEmployeeResponseStore();
+  const {
+    response: get_employee_response,
+    is_loading: get_employee_is_loading,
+    error: get_employee_error,
+  } = useGetEmployeeResponseStore();
+
+  const {
+    error: get_earnings_codes_error,
+  } = useGetEarningsCodesResponseStore();
 
   return (
     <Dialog>
@@ -42,15 +52,19 @@ export default function NewSpecialEarningsDialog() {
         <div className="flex flex-col gap-4 min-h-102">
           <EmployeeForm />
 
-          {is_loading ? (
+          {get_employee_is_loading ? (
             <div className="flex flex-col justify-end h-full">
               <NewSpecialEarningsFormSkeleton />
             </div>
-          ) : error ? (
+          ) : get_employee_error ? (
             <div className="flex flex-col justify-start h-full">
-              <ErrorAlert error={error} />
+              <ErrorAlert error={get_employee_error} />
             </div>
-          ) : response.body ? (
+          ) : get_earnings_codes_error ? (
+            <div className="flex flex-col justify-start h-full">
+              <ErrorAlert error={get_earnings_codes_error} />
+            </div>
+          ) : get_employee_response.body ? (
             <div className="flex flex-col justify-end h-full">
               <NewSpecialEarningsForm />
             </div>

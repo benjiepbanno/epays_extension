@@ -1,14 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { MONTHS, YEARS } from "@/lib/special-earnings/date";
 import { postSpecialEarnings } from "@/actions/special-earnings-actions";
+import { getAppointmentStatus } from "@/lib/special-earnings/utils";
+import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
 
 import { Button } from "@/components/ui/button";
+import { DialogFooter } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -26,10 +30,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
-import { getAppointmentStatus } from "@/lib/special-earnings/utils";
-import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
-import { DialogFooter } from "@/components/ui/dialog";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
 
 const formSchema = z.object({
   employee_number: z.string().min(1, "Required"),
@@ -54,19 +70,29 @@ const formSchema = z.object({
 });
 
 export default function NewSpecialEarningsForm() {
-  const { response } = useGetEmployeeResponseStore();
+  const { response: get_employee_response } = useGetEmployeeResponseStore();
+  const { response: get_earnings_codes_response } =
+    useGetEarningsCodesResponseStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      employee_number: response.body?.employee_number,
-      appointment_status_code: response.body?.appointment_status_code,
+      employee_number: get_employee_response.body?.employee_number,
+      appointment_status_code:
+        get_employee_response.body?.appointment_status_code,
       earnings_status_code: "1",
       amount: 0,
       year_from: "2025",
       year_to: "2025",
     },
   });
+
+  const earnings_codes: {
+    code: string;
+    description: string;
+  }[] = get_earnings_codes_response.body ?? [];
+
+  const [openPopover, setOpenPopover] = useState(false)
 
   const watchMonthFrom = form.watch("month_from");
   const watchYearFrom = form.watch("year_from");
@@ -110,12 +136,11 @@ export default function NewSpecialEarningsForm() {
     });
   }
 
-  const router = useRouter();
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-2 gap-4">
+
           {/* Employee Name */}
           <div className="col-span-2">
             <FormField
@@ -125,13 +150,17 @@ export default function NewSpecialEarningsForm() {
                 <FormItem>
                   <FormLabel>Employee Name</FormLabel>
                   <FormControl>
-                    <Input disabled value={response.body?.employee_name} />
+                    <Input
+                      disabled
+                      value={get_employee_response.body?.employee_name}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
           {/* Appointment Status */}
           <div className="col-span-1">
             <FormField
@@ -144,7 +173,7 @@ export default function NewSpecialEarningsForm() {
                     <Input
                       disabled
                       value={getAppointmentStatus(
-                        response.body?.appointment_status_code
+                        get_employee_response.body?.appointment_status_code
                       )}
                     />
                   </FormControl>
@@ -152,6 +181,7 @@ export default function NewSpecialEarningsForm() {
               )}
             />
           </div>
+
           {/* Earnings Status */}
           <div className="col-span-1">
             <FormField
@@ -179,6 +209,7 @@ export default function NewSpecialEarningsForm() {
               )}
             />
           </div>
+
           {/* Earnings Code */}
           <div className="col-span-1">
             <FormField
@@ -187,26 +218,73 @@ export default function NewSpecialEarningsForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Earnings Code</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select an earnings code" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="AB">m@example.com</SelectItem>
-                      <SelectItem value="BC">m@google.com</SelectItem>
-                      <SelectItem value="CD">m@support.com</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Popover open={openPopover} onOpenChange={setOpenPopover}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openPopover}
+                          className={cn(
+                            "w-full truncate justify-between font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? `${field.value} - ${
+                                earnings_codes.find(
+                                  (earnings_code) =>
+                                    earnings_code.code === field.value
+                                )?.description || ""
+                              }`
+                            : "Select an earnings code"}
+                          <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search an earnings code..."
+                          className="h-9"
+                        />
+                        <CommandList>
+                          <CommandEmpty>No earnings code found.</CommandEmpty>
+                          <CommandGroup>
+                            {earnings_codes.map((earnings_code) => (
+                              <CommandItem
+                                value={`${earnings_code.code} ${earnings_code.description}`}
+                                key={earnings_code.code}
+                                onSelect={() => {
+                                  form.setValue(
+                                    "earnings_code",
+                                    earnings_code.code
+                                  );
+                                  setOpenPopover(false)
+                                }}
+                              >
+                                {`${earnings_code.code} - ${earnings_code.description}`}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    earnings_code.code === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
           {/* Amount */}
           <div className="col-span-1">
             <FormField
@@ -227,6 +305,7 @@ export default function NewSpecialEarningsForm() {
               )}
             />
           </div>
+
           {/* Period From */}
           <div className="col-span-1 grid grid-cols-8 gap-1">
             <div className="col-span-8 text-sm font-medium">Period From</div>
@@ -311,6 +390,7 @@ export default function NewSpecialEarningsForm() {
               />
             </div>
           </div>
+          
           {/* Period To */}
           <div className="col-span-1 grid grid-cols-8 gap-1">
             <div className="col-span-8 text-sm font-medium">Period To</div>

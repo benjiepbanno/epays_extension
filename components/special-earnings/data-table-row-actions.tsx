@@ -66,15 +66,19 @@ export function DataTableRowActions<TData>({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <EditSpecialEarningsDialog
-        open={openEditDialog}
-        setOpen={setOpenEditDialog}
-      />
+      {openEditDialog && (
+        <EditSpecialEarningsDialog
+          open={openEditDialog}
+          setOpen={setOpenEditDialog}
+        />
+      )}
 
-      <DeleteSpecialEarningsDialog
-        open={openDeleteDialog}
-        setOpen={setOpenDeleteDialog}
-      />
+      {openDeleteDialog && (
+        <DeleteSpecialEarningsDialog
+          open={openDeleteDialog}
+          setOpen={setOpenDeleteDialog}
+        />
+      )}
     </>
   );
 }

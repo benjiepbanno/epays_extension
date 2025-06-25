@@ -11,6 +11,7 @@ import {
 } from "@/lib/special-earnings/data";
 import { Badge } from "../ui/badge";
 import { DataTableRowActions } from "./data-table-row-actions";
+import { formatPeriod } from "@/lib/special-earnings/utils";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   {
@@ -107,12 +108,14 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Period From" />
     ),
+    cell: ({ row }) => <div>{formatPeriod(row.getValue("period_from"))}</div>,
   },
   {
     accessorKey: "period_to",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Period To" />
     ),
+    cell: ({ row }) => <div>{formatPeriod(row.getValue("period_to"))}</div>,
   },
   {
     accessorKey: "earnings_status_code",

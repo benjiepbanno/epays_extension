@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -7,9 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import EditSpecialEarningsForm from "./edit-special-earnings-form";
 import EditSpecialEarningsFormSkeleton from "./edit-special-earnings-form-skeleton";
+import ErrorAlert from "../error-alert";
 
 import { useGetResponseStore } from "@/store/special-earnings/get-response-store";
-import ErrorAlert from "../error-alert";
+
+import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
 
 type Props = {
   open: boolean;
@@ -17,7 +23,14 @@ type Props = {
 };
 
 export default function EditSpecialEarningsDialog({ open, setOpen }: Props) {
-  const { response, is_loading, error } = useGetResponseStore();
+  const {
+    response: get_special_earnings_response,
+    is_loading: get_special_earnings_is_loading,
+    error: get_special_earnings_error,
+  } = useGetResponseStore();
+
+  const { error: get_earnings_codes_error } =
+    useGetEarningsCodesResponseStore();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -30,15 +43,19 @@ export default function EditSpecialEarningsDialog({ open, setOpen }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col gap-4 min-h-102">
-          {is_loading ? (
+          {get_special_earnings_is_loading ? (
             <div className="flex flex-col justify-end h-full">
               <EditSpecialEarningsFormSkeleton />
             </div>
-          ) : error ? (
+          ) : get_special_earnings_error ? (
             <div className="flex flex-col justify-start h-full">
-              <ErrorAlert error={error} />
+              <ErrorAlert error={get_special_earnings_error} />
             </div>
-          ) : response.body ? (
+          ) : get_earnings_codes_error ? (
+            <div className="flex flex-col justify-start h-full">
+              <ErrorAlert error={get_earnings_codes_error} />
+            </div>
+          ) : get_special_earnings_response.body ? (
             <div className="flex flex-col justify-end h-full">
               <EditSpecialEarningsForm />
             </div>
