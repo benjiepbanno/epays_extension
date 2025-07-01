@@ -56,13 +56,18 @@ export default function NewSpecialEarningsDialog() {
             <div className="flex flex-col justify-end h-full">
               <NewSpecialEarningsFormSkeleton />
             </div>
-          ) : get_employee_error ? (
-            <div className="flex flex-col justify-start h-full">
-              <ErrorAlert error={get_employee_error} />
-            </div>
-          ) : get_earnings_codes_error ? (
-            <div className="flex flex-col justify-start h-full">
-              <ErrorAlert error={get_earnings_codes_error} />
+          ) : get_earnings_codes_error || get_employee_error ? (
+            <div className="flex flex-col gap-2">
+              {get_earnings_codes_error && (
+                <div className="flex flex-col justify-start h-full">
+                  <ErrorAlert error={get_earnings_codes_error} />
+                </div>
+              )}
+              {get_employee_error && (
+                <div className="flex flex-col justify-start h-full">
+                  <ErrorAlert error={get_employee_error} />
+                </div>
+              )}
             </div>
           ) : get_employee_response.body ? (
             <div className="flex flex-col justify-end h-full">

@@ -77,6 +77,7 @@ export function DataTableRowActions<TData>({
         <DeleteSpecialEarningsDialog
           open={openDeleteDialog}
           setOpen={setOpenDeleteDialog}
+          special_earnings_id={special_earnings.id}
         />
       )}
     </>

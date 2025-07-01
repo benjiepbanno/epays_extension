@@ -25,10 +25,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "../ui/input";
 
 import { DataTablePagination } from "../data-table-reusable-components/data-table-pagination";
-import { DataTableViewOptions } from "../data-table-reusable-components/data-table-view-options";
 import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {

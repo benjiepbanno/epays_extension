@@ -2,9 +2,6 @@ import { getAllSpecialEarnings } from "@/actions/special-earnings-actions";
 import ErrorAlert from "@/components/special-earnings/error-alert";
 import SpecialEarningsTable from "@/components/special-earnings/special-earnings-table";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircleIcon } from "lucide-react";
-
 export default async function Page() {
   const { body: special_earnings, error } = await getAllSpecialEarnings();
 

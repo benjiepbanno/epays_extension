@@ -45,7 +45,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
+import { Badge } from "@/components/ui/badge";
 
 const formSchema = z.object({
   employee_number: z.string().min(1, "Required"),
@@ -92,7 +92,7 @@ export default function NewSpecialEarningsForm() {
     description: string;
   }[] = get_earnings_codes_response.body ?? [];
 
-  const [openPopover, setOpenPopover] = useState(false)
+  const [openPopover, setOpenPopover] = useState(false);
 
   const watchMonthFrom = form.watch("month_from");
   const watchYearFrom = form.watch("year_from");
@@ -140,7 +140,6 @@ export default function NewSpecialEarningsForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-2 gap-4">
-
           {/* Employee Name */}
           <div className="col-span-2">
             <FormField
@@ -230,14 +229,20 @@ export default function NewSpecialEarningsForm() {
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value
-                            ? `${field.value} - ${
-                                earnings_codes.find(
+                          {field.value ? (
+                            <div>
+                              <Badge variant="secondary">{field.value}</Badge>
+                              <span className="text-xs">
+                                {" "}
+                                {earnings_codes.find(
                                   (earnings_code) =>
                                     earnings_code.code === field.value
-                                )?.description || ""
-                              }`
-                            : "Select an earnings code"}
+                                )?.description || " Unknown earnings code"}
+                              </span>
+                            </div>
+                          ) : (
+                            "Select an earnings code"
+                          )}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </FormControl>
@@ -260,10 +265,13 @@ export default function NewSpecialEarningsForm() {
                                     "earnings_code",
                                     earnings_code.code
                                   );
-                                  setOpenPopover(false)
+                                  setOpenPopover(false);
                                 }}
                               >
-                                {`${earnings_code.code} - ${earnings_code.description}`}
+                                <Badge variant="secondary">
+                                  {earnings_code.code}
+                                </Badge>
+                                <span className="text-xs">{earnings_code.description}</span>
                                 <Check
                                   className={cn(
                                     "ml-auto",
@@ -390,7 +398,7 @@ export default function NewSpecialEarningsForm() {
               />
             </div>
           </div>
-          
+
           {/* Period To */}
           <div className="col-span-1 grid grid-cols-8 gap-1">
             <div className="col-span-8 text-sm font-medium">Period To</div>

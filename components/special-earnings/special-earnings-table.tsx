@@ -21,7 +21,6 @@ export default function SpecialEarningsTable({ special_earnings }: Props) {
     if (!get_earnings_codes_response.body) {
       fetchAndSetResponse();
     }
-    console.log(get_earnings_codes_response);
   }, [get_earnings_codes_response.body, fetchAndSetResponse]);
 
   return (

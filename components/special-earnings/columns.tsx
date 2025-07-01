@@ -2,16 +2,18 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../data-table-reusable-components/data-table-column-header";
-import { SpecialEarnings } from "@/lib/special-earnings/schema";
+import { DataTableRowActions } from "./data-table-row-actions";
 
-import { Checkbox } from "../ui/checkbox";
+import { SpecialEarnings } from "@/lib/special-earnings/schema";
 import {
   appointment_statuses,
   earnings_statuses,
 } from "@/lib/special-earnings/data";
-import { Badge } from "../ui/badge";
-import { DataTableRowActions } from "./data-table-row-actions";
 import { formatPeriod } from "@/lib/special-earnings/utils";
+import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+
+import { Badge } from "../ui/badge";
+import { Checkbox } from "../ui/checkbox";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   {
@@ -52,7 +54,7 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       <DataTableColumnHeader column={column} title="Employee Name" />
     ),
     cell: ({ row }) => (
-      <div className="w-[300px]">{row.getValue("employee_name")}</div>
+      <div className="min-w-[300px]">{row.getValue("employee_name")}</div>
     ),
   },
   {
@@ -85,8 +87,38 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Earnings Code" />
     ),
+    cell: ({ row }) => {
+      const { response } = useGetEarningsCodesResponseStore();
+      const earnings_codes: {
+        code: string;
+        description: string;
+      }[] = response.body ?? [];
+
+      const earnings_code = earnings_codes.find(
+        (earnings_code) => earnings_code.code === row.original.earnings_code
+      );
+
+      return (
+        <div>
+          {earnings_code ? (
+            <div>
+              <Badge variant="secondary">{earnings_code.code}</Badge>
+              <span className="text-xs"> {earnings_code.description}</span>
+            </div>
+          ) : (
+            <div>
+              <Badge variant="secondary">{row.original.earnings_code}</Badge>
+              <Badge variant="destructive">Unknown</Badge>
+            </div>
+          )}
+        </div>
+      );
+    },
     enableSorting: false,
     enableHiding: false,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: "amount",
