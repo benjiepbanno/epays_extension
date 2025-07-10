@@ -7,4 +7,12 @@ export const modules = [
     title: "Special Earnings",
     url: "/special-earnings",
   },
+  {
+    title: "Uploaded Payrolls",
+    url: "/uploaded-payrolls",
+  },
+  {
+    title: "Payrolls",
+    url: "/office/payrolls",
+  },
 ];

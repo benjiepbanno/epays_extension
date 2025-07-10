@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsLeftRight, ChevronsUpDown, Plus } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -46,6 +46,12 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   employee_number: z.string().min(1, "Required"),
@@ -87,12 +93,25 @@ export default function NewSpecialEarningsForm() {
     },
   });
 
+  // Earnings Code Initialization
+
   const earnings_codes: {
     code: string;
     description: string;
   }[] = get_earnings_codes_response.body ?? [];
 
   const [openPopover, setOpenPopover] = useState(false);
+
+  // Amount Initialization
+
+  const [amountMode, setAmountMode] = useState<
+    "fixedRate" | "salaryRatePercentage" | "fixedRatePercentage"
+  >("fixedRate");
+  const [salaryRatePercentage, setSalaryRatePercentage] = useState<string>("");
+  const [fixedRatePercentage, setFixedRatePercentage] = useState<string>("");
+  const [fixedRate, setFixedRate] = useState<string>("");
+
+  // Periods Initialization
 
   const watchMonthFrom = form.watch("month_from");
   const watchYearFrom = form.watch("year_from");
@@ -121,6 +140,8 @@ export default function NewSpecialEarningsForm() {
     return false;
   };
 
+  // Form Submission Handler
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const promise = async () => {
       const response = await postSpecialEarnings(values);
@@ -134,6 +155,21 @@ export default function NewSpecialEarningsForm() {
       success: () => "Special earnings successfully added.",
       error: (error) => error.message || "Failed to add special earnings.",
     });
+  }
+
+  // Switch Amount Mode Handler
+
+  function handleSwitchAmountMode() {
+    setSalaryRatePercentage("");
+    setFixedRatePercentage("");
+    setFixedRate("");
+    setAmountMode((prev) =>
+      prev === "fixedRate"
+        ? "salaryRatePercentage"
+        : prev === "salaryRatePercentage"
+        ? "fixedRatePercentage"
+        : "fixedRate"
+    );
   }
 
   return (
@@ -263,7 +299,8 @@ export default function NewSpecialEarningsForm() {
                                 onSelect={() => {
                                   form.setValue(
                                     "earnings_code",
-                                    earnings_code.code
+                                    earnings_code.code,
+                                    { shouldValidate: true }
                                   );
                                   setOpenPopover(false);
                                 }}
@@ -271,7 +308,9 @@ export default function NewSpecialEarningsForm() {
                                 <Badge variant="secondary">
                                   {earnings_code.code}
                                 </Badge>
-                                <span className="text-xs">{earnings_code.description}</span>
+                                <span className="text-xs">
+                                  {earnings_code.description}
+                                </span>
                                 <Check
                                   className={cn(
                                     "ml-auto",
@@ -295,23 +334,178 @@ export default function NewSpecialEarningsForm() {
 
           {/* Amount */}
           <div className="col-span-1">
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Input an amount"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-0.5">
+              <div className="flex flex-row gap-1 items-center">
+                <div className="text-sm font-medium">Amount</div>
+                <span className="text-sm">
+                  (
+                  {amountMode === "fixedRate"
+                    ? "Fixed Rate"
+                    : amountMode === "salaryRatePercentage"
+                    ? "Salary Rate Percentage"
+                    : "Fixed Rate Percentage"}
+                  )
+                </span>
+              </div>
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <div className="flex flex-row gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="icon"
+                          className=""
+                          onClick={handleSwitchAmountMode}
+                        >
+                          <ChevronsLeftRight />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Switch Amount Mode</TooltipContent>
+                    </Tooltip>
+
+                    <div className="flex w-full">
+                      {amountMode === "fixedRate" && (
+                        <FormItem className="w-full">
+                          {/* Fixed Rate */}
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                setSalaryRatePercentage("");
+                                setFixedRatePercentage("");
+                                setFixedRate("");
+                              }}
+                              placeholder="Enter amount"
+                              className=""
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                      {amountMode === "salaryRatePercentage" && (
+                        <FormItem>
+                          {/* Salary Rate Percentage */}
+                          <div className="flex flex-row gap-1 items-center">
+                            <FormControl>
+                              <Input
+                                type="number"
+                                value={salaryRatePercentage}
+                                onChange={(e) => {
+                                  const pct = e.target.value;
+                                  setSalaryRatePercentage(pct);
+                                  setFixedRatePercentage("");
+                                  setFixedRate("");
+                                  const pctNum = parseFloat(pct);
+                                  if (!isNaN(pctNum)) {
+                                    form.setValue(
+                                      "amount",
+                                      (get_employee_response.body?.salary_rate *
+                                        pctNum) /
+                                        100,
+                                      {
+                                        shouldValidate: true,
+                                      }
+                                    );
+                                  } else {
+                                    form.setValue("amount", 0, {
+                                      shouldValidate: true,
+                                    });
+                                  }
+                                }}
+                                placeholder="%"
+                                className="w-28"
+                              />
+                            </FormControl>
+                            <span>of</span>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                value={get_employee_response.body?.salary_rate}
+                                readOnly
+                                disabled
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                      {amountMode === "fixedRatePercentage" && (
+                        <FormItem>
+                          {/* Fixed Rate Percentage */}
+                          <div className="flex flex-row gap-1 items-center">
+                            <FormControl>
+                              <Input
+                                type="number"
+                                value={fixedRatePercentage}
+                                onChange={(e) => {
+                                  const pct = e.target.value;
+                                  setFixedRatePercentage(pct);
+                                  setSalaryRatePercentage("");
+                                  const pctNum = parseFloat(pct);
+                                  const rateNum = parseFloat(fixedRate);
+                                  if (!isNaN(pctNum) && !isNaN(rateNum)) {
+                                    form.setValue(
+                                      "amount",
+                                      (rateNum * pctNum) / 100,
+                                      {
+                                        shouldValidate: true,
+                                      }
+                                    );
+                                  } else {
+                                    form.setValue("amount", 0, {
+                                      shouldValidate: true,
+                                    });
+                                  }
+                                }}
+                                placeholder="%"
+                                className="w-28"
+                              />
+                            </FormControl>
+                            <span>of</span>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                value={fixedRate}
+                                onChange={(e) => {
+                                  const rate = e.target.value;
+                                  setFixedRate(rate);
+                                  setSalaryRatePercentage("");
+                                  const pctNum =
+                                    parseFloat(fixedRatePercentage);
+                                  const rateNum = parseFloat(rate);
+                                  if (!isNaN(pctNum) && !isNaN(rateNum)) {
+                                    form.setValue(
+                                      "amount",
+                                      (rateNum * pctNum) / 100,
+                                      {
+                                        shouldValidate: true,
+                                      }
+                                    );
+                                  } else {
+                                    form.setValue("amount", 0, {
+                                      shouldValidate: true,
+                                    });
+                                  }
+                                }}
+                                placeholder="amount"
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
           </div>
 
           {/* Period From */}

@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,9 +26,8 @@ export default function NewSpecialEarningsDialog() {
     error: get_employee_error,
   } = useGetEmployeeResponseStore();
 
-  const {
-    error: get_earnings_codes_error,
-  } = useGetEarningsCodesResponseStore();
+  const { error: get_earnings_codes_error } =
+    useGetEarningsCodesResponseStore();
 
   return (
     <Dialog>
@@ -41,7 +38,7 @@ export default function NewSpecialEarningsDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="min-w-xl">
         <DialogHeader>
           <DialogTitle>New Special Earnings</DialogTitle>
           <DialogDescription>
