@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { STEPS } from "@/lib/uploaded-payrolls/data";
-
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,24 +11,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import Initialization from "./initialization";
+
+import UploadPayrollForm from "./upload-payroll-form";
+import SupportingDocumentsReview from "./supporting-documents-review";
 
 export default function UploadPayrollDialog() {
-  const [currentStep, setCurrentStep] = useState(1);
-
-  const step = STEPS.find((step) => step.id === currentStep);
-
-  const isFirstStep = currentStep === 1;
-  const isLastStep = currentStep === STEPS.length;
-
-  function handleNext() {
-    if (!isLastStep) setCurrentStep((prev) => prev + 1);
-  }
-
-  function handleBack() {
-    if (!isFirstStep) setCurrentStep((prev) => prev - 1);
-  }
+  const [step, setStep] = useState<number>(1);
 
   return (
     <Dialog>
@@ -40,20 +26,15 @@ export default function UploadPayrollDialog() {
           Upload Payroll
         </Button>
       </DialogTrigger>
-
-      <DialogContent className="min-w-2xl">
-        <DialogHeader>
+      <DialogContent>
+        <DialogHeader className="">
           <DialogTitle>Upload Payroll</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-6 min-h-102">
-          <div className="flex flex-col gap-1">
-            <div className="font-medium">{step?.label}</div>
-            <Progress value={(currentStep / STEPS.length) * 100} />
-          </div>
-
-          {currentStep === 1 && <Initialization />}
+        <div className="">
+          {step === 1 && <UploadPayrollForm setStep={setStep} />}
+          {step === 2 && <SupportingDocumentsReview setStep={setStep} />}
         </div>
       </DialogContent>
     </Dialog>
