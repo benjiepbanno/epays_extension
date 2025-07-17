@@ -1,4 +1,4 @@
-import { NewFormType } from "@/lib/special-earnings/schemas";
+import { EditFormType } from "@/lib/special-earnings/schemas";
 
 import {
   FormControl,
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 
 type Props = {
-  form: NewFormType;
+  form: EditFormType;
 };
 
 export default function EarningsStatusCodeFormField({ form }: Props) {

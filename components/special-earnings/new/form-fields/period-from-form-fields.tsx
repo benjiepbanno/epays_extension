@@ -1,4 +1,4 @@
-import { FormType } from "@/lib/special-earnings/schema";
+import { NewFormType } from "@/lib/special-earnings/schemas";
 import { MONTHS, YEARS } from "@/lib/special-earnings/date";
 
 import {
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 
 type Props = {
-  form: FormType;
+  form: NewFormType;
 };
 
 export default function PeriodFromFormFields({ form }: Props) {

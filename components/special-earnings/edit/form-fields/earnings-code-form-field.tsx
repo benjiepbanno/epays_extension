@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { NewFormType } from "@/lib/special-earnings/schemas";
+import { EditFormType } from "@/lib/special-earnings/schemas";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
 
@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/popover";
 
 type Props = {
-  form: NewFormType;
+  form: EditFormType;
 };
 
 export default function EarningsCodeFormField({ form }: Props) {

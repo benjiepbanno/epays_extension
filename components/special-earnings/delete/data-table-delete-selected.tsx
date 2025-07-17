@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Table } from "@tanstack/react-table";
-import { specialEarningsSchema } from "@/lib/special-earnings/schema";
+import { specialEarningsSchema } from "@/lib/special-earnings/schemas";
 import { deleteSpecialEarnings } from "@/actions/special-earnings-actions";
 
 import {

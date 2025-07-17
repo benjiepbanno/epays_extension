@@ -1,31 +1,32 @@
-import { FormType } from "@/lib/special-earnings/schema";
+import { EditFormType } from "@/lib/special-earnings/schemas";
 
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  form: FormType;
-  employee_name: string;
+  form: EditFormType;
+  employee_number: string;
 };
 
-export default function EmployeeNumberFormField({ form, employee_name }: Props) {
+export default function EmployeeNumberFormField({
+  form,
+  employee_number,
+}: Props) {
   return (
     <FormField
       control={form.control}
       name="employee_number"
       render={() => (
         <FormItem>
-          <FormLabel>Employee Name</FormLabel>
+          <FormLabel>Employee Number</FormLabel>
           <FormControl>
-            <Input disabled value={employee_name} />
+            <Input disabled value={employee_number} />
           </FormControl>
-          <FormMessage />
         </FormItem>
       )}
     />

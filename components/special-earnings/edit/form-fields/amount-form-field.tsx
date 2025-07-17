@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { NewFormType } from "@/lib/special-earnings/schemas";
+import { EditFormType } from "@/lib/special-earnings/schemas";
 import { ChevronsLeftRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  form: NewFormType;
+  form: EditFormType;
   salary_rate: number;
 };
 

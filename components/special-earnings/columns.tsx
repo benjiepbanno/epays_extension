@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../data-table-reusable-components/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 
-import { SpecialEarnings } from "@/lib/special-earnings/schema";
+import { SpecialEarnings } from "@/lib/special-earnings/schemas";
 import {
   appointment_statuses,
   earnings_statuses,

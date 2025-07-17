@@ -1,5 +1,4 @@
 import { NewFormType } from "@/lib/special-earnings/schemas";
-import { getAppointmentStatus } from "@/lib/special-earnings/utils";
 
 import {
   FormControl,
@@ -11,25 +10,19 @@ import { Input } from "@/components/ui/input";
 
 type Props = {
   form: NewFormType;
-  appointment_status_code: string;
+  employee_name: string;
 };
 
-export default function AppointmentStatusCodeFormField({
-  form,
-  appointment_status_code,
-}: Props) {
+export default function EmployeeNameFormField({ form, employee_name }: Props) {
   return (
     <FormField
       control={form.control}
-      name="appointment_status_code"
+      name="employee_number"
       render={() => (
         <FormItem>
-          <FormLabel>Appointment Status</FormLabel>
+          <FormLabel>Employee Name</FormLabel>
           <FormControl>
-            <Input
-              disabled
-              value={getAppointmentStatus(appointment_status_code)}
-            />
+            <Input disabled value={employee_name} />
           </FormControl>
         </FormItem>
       )}

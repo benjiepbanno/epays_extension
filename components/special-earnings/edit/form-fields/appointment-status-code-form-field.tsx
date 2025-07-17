@@ -1,4 +1,4 @@
-import { NewFormType } from "@/lib/special-earnings/schemas";
+import { EditFormType } from "@/lib/special-earnings/schemas";
 import { getAppointmentStatus } from "@/lib/special-earnings/utils";
 
 import {
@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  form: NewFormType;
+  form: EditFormType;
   appointment_status_code: string;
 };
 

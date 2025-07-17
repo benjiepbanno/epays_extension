@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-import { specialEarningsSchema } from "@/lib/special-earnings/schema";
+import { specialEarningsSchema } from "@/lib/special-earnings/schemas";
 import EditSpecialEarningsDialog from "./edit/edit-special-earnings-dialog";
 import DeleteSpecialEarningsDialog from "./delete/delete-special-earnings-dialog";
 

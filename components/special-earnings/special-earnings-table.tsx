@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { SpecialEarnings } from "@/lib/special-earnings/schema";
+import { SpecialEarnings } from "@/lib/special-earnings/schemas";
 import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
 
 type Props = {

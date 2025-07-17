@@ -1,59 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
+import { useForm } from "react-hook-form";
 
-import { formSchema } from "@/lib/special-earnings/schema";
-import { MONTHS, YEARS } from "@/lib/special-earnings/date";
+import { NewFormData, newFormSchema } from "@/lib/special-earnings/schemas";
 import { postSpecialEarnings } from "@/actions/special-earnings-actions";
-import { getAppointmentStatus } from "@/lib/special-earnings/utils";
 import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
 
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
-import { Check, ChevronsLeftRight, ChevronsUpDown, Plus } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Plus } from "lucide-react";
 
-import EmployeeNumberFormField from "./form-fields/employee-number-form-field";
+import EmployeeNameFormField from "./form-fields/employee-name-form-field";
 import AppointmentStatusCodeFormField from "./form-fields/appointment-status-code-form-field";
 import EarningsStatusCodeFormField from "./form-fields/earnings-status-code-form-field";
 import EarningsCodeFormField from "./form-fields/earnings-code-form-field";
@@ -64,8 +24,8 @@ import PeriodToFormFields from "./form-fields/period-to-form-fields";
 export default function NewSpecialEarningsForm() {
   const { response: get_employee_response } = useGetEmployeeResponseStore();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<NewFormData>({
+    resolver: zodResolver(newFormSchema),
     defaultValues: {
       employee_number: get_employee_response.body?.employee_number,
       appointment_status_code:
@@ -80,7 +40,7 @@ export default function NewSpecialEarningsForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: NewFormData) {
     console.log(values);
     const promise = async () => {
       const response = await postSpecialEarnings(values);
@@ -100,9 +60,9 @@ export default function NewSpecialEarningsForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-2 gap-4">
-          {/* Employee Number */}
+          {/* Employee Name */}
           <div className="col-span-2">
-            <EmployeeNumberFormField
+            <EmployeeNameFormField
               form={form}
               employee_name={get_employee_response.body?.employee_name}
             />

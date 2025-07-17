@@ -1,5 +1,5 @@
+import { EditFormType } from "@/lib/special-earnings/schemas";
 import { MONTHS, YEARS } from "@/lib/special-earnings/date";
-import { NewFormType } from "@/lib/special-earnings/schemas";
 
 import {
   FormControl,
@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/select";
 
 type Props = {
-  form: NewFormType;
+  form: EditFormType;
 };
 
-export default function PeriodToFormFields({ form }: Props) {
+export default function PeriodFromFormFields({ form }: Props) {
   const year_from = form.watch("year_from");
   const month_from = form.watch("month_from");
   const year_to = form.watch("year_to");
@@ -46,11 +46,11 @@ export default function PeriodToFormFields({ form }: Props) {
 
   return (
     <>
-      <div className="col-span-8 text-sm font-medium">Period To</div>
+      <div className="col-span-8 text-sm font-medium">Period From</div>
       <div className="col-span-3">
         <FormField
           control={form.control}
-          name="year_to"
+          name="year_from"
           render={({ field }) => (
             <FormItem>
               <Select onValueChange={field.onChange} value={field.value}>
@@ -65,8 +65,12 @@ export default function PeriodToFormFields({ form }: Props) {
                       key={value}
                       value={value}
                       disabled={
-                        month_from
-                          ? isMonthYearDisabled(value, month_to || "12", true)
+                        month_to
+                          ? isMonthYearDisabled(
+                              value,
+                              month_from || "01",
+                              false
+                            )
                           : false
                       }
                     >
@@ -83,7 +87,7 @@ export default function PeriodToFormFields({ form }: Props) {
       <div className="col-span-5">
         <FormField
           control={form.control}
-          name="month_to"
+          name="month_from"
           render={({ field }) => (
             <FormItem>
               <Select onValueChange={field.onChange} value={field.value}>
@@ -98,8 +102,8 @@ export default function PeriodToFormFields({ form }: Props) {
                       key={value}
                       value={value}
                       disabled={
-                        year_to
-                          ? isMonthYearDisabled(year_to, value, true)
+                        year_from
+                          ? isMonthYearDisabled(year_from, value, false)
                           : false
                       }
                     >

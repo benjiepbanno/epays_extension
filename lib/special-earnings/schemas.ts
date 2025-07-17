@@ -15,7 +15,7 @@ export const specialEarningsSchema = z.object({
 
 export type SpecialEarnings = z.infer<typeof specialEarningsSchema>;
 
-export const formSchema = z.object({
+export const newFormSchema = z.object({
   employee_number: z.string().min(1, "Required"),
   appointment_status_code: z.string().min(1, "Required"),
   earnings_status_code: z.string().min(1, "Required"),
@@ -27,5 +27,21 @@ export const formSchema = z.object({
   month_to: z.string().min(1, "Required"),
 });
 
-export type FormData = z.infer<typeof formSchema>;
-export type FormType = UseFormReturn<FormData>;
+export type NewFormData = z.infer<typeof newFormSchema>;
+export type NewFormType = UseFormReturn<NewFormData>;
+
+export const editFormSchema = z.object({
+  special_earnings_id: z.coerce.number().positive("Required"),
+  employee_number: z.string().min(1, "Required"),
+  appointment_status_code: z.string().min(1, "Required"),
+  earnings_status_code: z.string().min(1, "Required"),
+  earnings_code: z.string().min(1, "Required"),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
+  year_from: z.string().min(1, "Required"),
+  month_from: z.string().min(1, "Required"),
+  year_to: z.string().min(1, "Required"),
+  month_to: z.string().min(1, "Required"),
+});
+
+export type EditFormData = z.infer<typeof editFormSchema>;
+export type EditFormType = UseFormReturn<EditFormData>;
