@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
+import { formSchema } from "@/lib/special-earnings/schema";
 import { MONTHS, YEARS } from "@/lib/special-earnings/date";
 import { postSpecialEarnings } from "@/actions/special-earnings-actions";
 import { getAppointmentStatus } from "@/lib/special-earnings/utils";
@@ -46,39 +47,22 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const formSchema = z.object({
-  employee_number: z.string().min(1, "Required"),
-  appointment_status_code: z.string().min(1, "Required"),
-  earnings_status_code: z.string().min(1, "Required"),
-  earnings_code: z.string({
-    required_error: "Required",
-  }),
-  amount: z.coerce.number().positive("Amount must be greater than 0"),
-  year_from: z.string({
-    required_error: "Required",
-  }),
-  month_from: z.string({
-    required_error: "Required",
-  }),
-  year_to: z.string({
-    required_error: "Required",
-  }),
-  month_to: z.string({
-    required_error: "Required",
-  }),
-});
+import EmployeeNumberFormField from "./form-fields/employee-number-form-field";
+import AppointmentStatusCodeFormField from "./form-fields/appointment-status-code-form-field";
+import EarningsStatusCodeFormField from "./form-fields/earnings-status-code-form-field";
+import EarningsCodeFormField from "./form-fields/earnings-code-form-field";
+import AmountFormField from "./form-fields/amount-form-field";
+import PeriodFromFormFields from "./form-fields/period-from-form-fields";
+import PeriodToFormFields from "./form-fields/period-to-form-fields";
 
 export default function NewSpecialEarningsForm() {
   const { response: get_employee_response } = useGetEmployeeResponseStore();
-  const { response: get_earnings_codes_response } =
-    useGetEarningsCodesResponseStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,62 +71,17 @@ export default function NewSpecialEarningsForm() {
       appointment_status_code:
         get_employee_response.body?.appointment_status_code,
       earnings_status_code: "1",
+      earnings_code: "",
       amount: 0,
       year_from: "2025",
+      month_from: "",
       year_to: "2025",
+      month_to: "",
     },
   });
 
-  // Earnings Code Initialization
-
-  const earnings_codes: {
-    code: string;
-    description: string;
-  }[] = get_earnings_codes_response.body ?? [];
-
-  const [openPopover, setOpenPopover] = useState(false);
-
-  // Amount Initialization
-
-  const [amountMode, setAmountMode] = useState<
-    "fixedRate" | "salaryRatePercentage" | "fixedRatePercentage"
-  >("fixedRate");
-  const [salaryRatePercentage, setSalaryRatePercentage] = useState<string>("");
-  const [fixedRatePercentage, setFixedRatePercentage] = useState<string>("");
-  const [fixedRate, setFixedRate] = useState<string>("");
-
-  // Periods Initialization
-
-  const watchMonthFrom = form.watch("month_from");
-  const watchYearFrom = form.watch("year_from");
-  const watchMonthTo = form.watch("month_to");
-  const watchYearTo = form.watch("year_to");
-
-  const periodFromValue =
-    watchYearFrom && watchMonthFrom
-      ? `${watchYearFrom}${watchMonthFrom}`
-      : null;
-  const periodToValue =
-    watchYearTo && watchMonthTo ? `${watchYearTo}${watchMonthTo}` : null;
-
-  const isMonthYearDisabled = (
-    year: string,
-    month: string,
-    isToField: boolean
-  ): boolean => {
-    const value = `${year}${month}`;
-    if (isToField && periodFromValue) {
-      return value < periodFromValue;
-    }
-    if (!isToField && periodToValue) {
-      return value > periodToValue;
-    }
-    return false;
-  };
-
-  // Form Submission Handler
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
     const promise = async () => {
       const response = await postSpecialEarnings(values);
       if (response.error) throw new Error(response.error);
@@ -157,521 +96,48 @@ export default function NewSpecialEarningsForm() {
     });
   }
 
-  // Switch Amount Mode Handler
-
-  function handleSwitchAmountMode() {
-    setSalaryRatePercentage("");
-    setFixedRatePercentage("");
-    setFixedRate("");
-    setAmountMode((prev) =>
-      prev === "fixedRate"
-        ? "salaryRatePercentage"
-        : prev === "salaryRatePercentage"
-        ? "fixedRatePercentage"
-        : "fixedRate"
-    );
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-2 gap-4">
-          {/* Employee Name */}
+          {/* Employee Number */}
           <div className="col-span-2">
-            <FormField
-              control={form.control}
-              name="employee_number"
-              render={({}) => (
-                <FormItem>
-                  <FormLabel>Employee Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled
-                      value={get_employee_response.body?.employee_name}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <EmployeeNumberFormField
+              form={form}
+              employee_name={get_employee_response.body?.employee_name}
             />
           </div>
-
-          {/* Appointment Status */}
+          {/* Appointment Status Code */}
           <div className="col-span-1">
-            <FormField
-              control={form.control}
-              name="appointment_status_code"
-              render={({}) => (
-                <FormItem>
-                  <FormLabel>Appointment Status</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled
-                      value={getAppointmentStatus(
-                        get_employee_response.body?.appointment_status_code
-                      )}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+            <AppointmentStatusCodeFormField
+              form={form}
+              appointment_status_code={
+                get_employee_response.body?.appointment_status_code
+              }
             />
           </div>
-
-          {/* Earnings Status */}
+          {/* Earnings Status Code */}
           <div className="col-span-1">
-            <FormField
-              control={form.control}
-              name="earnings_status_code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Earnings Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select an earnings status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">Active</SelectItem>
-                      <SelectItem value="0">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <EarningsStatusCodeFormField form={form} />
           </div>
-
           {/* Earnings Code */}
           <div className="col-span-1">
-            <FormField
-              control={form.control}
-              name="earnings_code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Earnings Code</FormLabel>
-                  <Popover open={openPopover} onOpenChange={setOpenPopover}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openPopover}
-                          className={cn(
-                            "w-full truncate justify-between font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            <div>
-                              <Badge variant="secondary">{field.value}</Badge>
-                              <span className="text-xs">
-                                {" "}
-                                {earnings_codes.find(
-                                  (earnings_code) =>
-                                    earnings_code.code === field.value
-                                )?.description || " Unknown earnings code"}
-                              </span>
-                            </div>
-                          ) : (
-                            "Select an earnings code"
-                          )}
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search an earnings code..."
-                          className="h-9"
-                        />
-                        <CommandList>
-                          <CommandEmpty>No earnings code found.</CommandEmpty>
-                          <CommandGroup>
-                            {earnings_codes.map((earnings_code) => (
-                              <CommandItem
-                                value={`${earnings_code.code} ${earnings_code.description}`}
-                                key={earnings_code.code}
-                                onSelect={() => {
-                                  form.setValue(
-                                    "earnings_code",
-                                    earnings_code.code,
-                                    { shouldValidate: true }
-                                  );
-                                  setOpenPopover(false);
-                                }}
-                              >
-                                <Badge variant="secondary">
-                                  {earnings_code.code}
-                                </Badge>
-                                <span className="text-xs">
-                                  {earnings_code.description}
-                                </span>
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    earnings_code.code === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <EarningsCodeFormField form={form} />
           </div>
-
           {/* Amount */}
           <div className="col-span-1">
-            <div className="space-y-0.5">
-              <div className="flex flex-row gap-1 items-center">
-                <div className="text-sm font-medium">Amount</div>
-                <span className="text-sm">
-                  (
-                  {amountMode === "fixedRate"
-                    ? "Fixed Rate"
-                    : amountMode === "salaryRatePercentage"
-                    ? "Salary Rate Percentage"
-                    : "Fixed Rate Percentage"}
-                  )
-                </span>
-              </div>
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <div className="flex flex-row gap-2">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="icon"
-                          className=""
-                          onClick={handleSwitchAmountMode}
-                        >
-                          <ChevronsLeftRight />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Switch Amount Mode</TooltipContent>
-                    </Tooltip>
-
-                    <div className="flex w-full">
-                      {amountMode === "fixedRate" && (
-                        <FormItem className="w-full">
-                          {/* Fixed Rate */}
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              value={field.value || ""}
-                              onChange={(e) => {
-                                field.onChange(e);
-                                setSalaryRatePercentage("");
-                                setFixedRatePercentage("");
-                                setFixedRate("");
-                              }}
-                              placeholder="Enter amount"
-                              className=""
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                      {amountMode === "salaryRatePercentage" && (
-                        <FormItem>
-                          {/* Salary Rate Percentage */}
-                          <div className="flex flex-row gap-1 items-center">
-                            <FormControl>
-                              <Input
-                                type="number"
-                                value={salaryRatePercentage}
-                                onChange={(e) => {
-                                  const pct = e.target.value;
-                                  setSalaryRatePercentage(pct);
-                                  setFixedRatePercentage("");
-                                  setFixedRate("");
-                                  const pctNum = parseFloat(pct);
-                                  if (!isNaN(pctNum)) {
-                                    form.setValue(
-                                      "amount",
-                                      (get_employee_response.body?.salary_rate *
-                                        pctNum) /
-                                        100,
-                                      {
-                                        shouldValidate: true,
-                                      }
-                                    );
-                                  } else {
-                                    form.setValue("amount", 0, {
-                                      shouldValidate: true,
-                                    });
-                                  }
-                                }}
-                                placeholder="%"
-                                className="w-28"
-                              />
-                            </FormControl>
-                            <span>of</span>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                value={get_employee_response.body?.salary_rate}
-                                readOnly
-                                disabled
-                              />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                      {amountMode === "fixedRatePercentage" && (
-                        <FormItem>
-                          {/* Fixed Rate Percentage */}
-                          <div className="flex flex-row gap-1 items-center">
-                            <FormControl>
-                              <Input
-                                type="number"
-                                value={fixedRatePercentage}
-                                onChange={(e) => {
-                                  const pct = e.target.value;
-                                  setFixedRatePercentage(pct);
-                                  setSalaryRatePercentage("");
-                                  const pctNum = parseFloat(pct);
-                                  const rateNum = parseFloat(fixedRate);
-                                  if (!isNaN(pctNum) && !isNaN(rateNum)) {
-                                    form.setValue(
-                                      "amount",
-                                      (rateNum * pctNum) / 100,
-                                      {
-                                        shouldValidate: true,
-                                      }
-                                    );
-                                  } else {
-                                    form.setValue("amount", 0, {
-                                      shouldValidate: true,
-                                    });
-                                  }
-                                }}
-                                placeholder="%"
-                                className="w-28"
-                              />
-                            </FormControl>
-                            <span>of</span>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                value={fixedRate}
-                                onChange={(e) => {
-                                  const rate = e.target.value;
-                                  setFixedRate(rate);
-                                  setSalaryRatePercentage("");
-                                  const pctNum =
-                                    parseFloat(fixedRatePercentage);
-                                  const rateNum = parseFloat(rate);
-                                  if (!isNaN(pctNum) && !isNaN(rateNum)) {
-                                    form.setValue(
-                                      "amount",
-                                      (rateNum * pctNum) / 100,
-                                      {
-                                        shouldValidate: true,
-                                      }
-                                    );
-                                  } else {
-                                    form.setValue("amount", 0, {
-                                      shouldValidate: true,
-                                    });
-                                  }
-                                }}
-                                placeholder="amount"
-                              />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    </div>
-                  </div>
-                )}
-              />
-            </div>
+            <AmountFormField
+              form={form}
+              salary_rate={get_employee_response.body?.salary_rate}
+            />
           </div>
-
           {/* Period From */}
           <div className="col-span-1 grid grid-cols-8 gap-1">
-            <div className="col-span-8 text-sm font-medium">Period From</div>
-            <div className="col-span-3">
-              <FormField
-                control={form.control}
-                name="year_from"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Year" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {YEARS.map((value) => (
-                          <SelectItem
-                            key={value}
-                            value={value}
-                            disabled={
-                              watchMonthTo
-                                ? isMonthYearDisabled(
-                                    value,
-                                    watchMonthFrom || "01",
-                                    false
-                                  )
-                                : false
-                            }
-                          >
-                            {value}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="col-span-5">
-              <FormField
-                control={form.control}
-                name="month_from"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Month" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {MONTHS.map(({ value, label }) => (
-                          <SelectItem
-                            key={value}
-                            value={value}
-                            disabled={
-                              watchYearFrom
-                                ? isMonthYearDisabled(
-                                    watchYearFrom,
-                                    value,
-                                    false
-                                  )
-                                : false
-                            }
-                          >
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <PeriodFromFormFields form={form} />
           </div>
-
           {/* Period To */}
           <div className="col-span-1 grid grid-cols-8 gap-1">
-            <div className="col-span-8 text-sm font-medium">Period To</div>
-            <div className="col-span-3">
-              <FormField
-                control={form.control}
-                name="year_to"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Year" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {YEARS.map((value) => (
-                          <SelectItem
-                            key={value}
-                            value={value}
-                            disabled={
-                              watchMonthFrom
-                                ? isMonthYearDisabled(
-                                    value,
-                                    watchMonthTo || "12",
-                                    true
-                                  )
-                                : false
-                            }
-                          >
-                            {value}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="col-span-5">
-              <FormField
-                control={form.control}
-                name="month_to"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Month" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {MONTHS.map(({ value, label }) => (
-                          <SelectItem
-                            key={value}
-                            value={value}
-                            disabled={
-                              watchYearTo
-                                ? isMonthYearDisabled(watchYearTo, value, true)
-                                : false
-                            }
-                          >
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <PeriodToFormFields form={form} />
           </div>
 
           <div className="col-span-2">

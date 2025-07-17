@@ -8,6 +8,10 @@ export const modules = [
     url: "/special-earnings",
   },
   {
+    title: "Computed Payrolls",
+    url: "/computed-payrolls",
+  },
+  {
     title: "Uploaded Payrolls",
     url: "/uploaded-payrolls",
   },
