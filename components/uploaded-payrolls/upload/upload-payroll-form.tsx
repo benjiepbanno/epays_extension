@@ -42,7 +42,7 @@ const formSchema = z.object({
   period_year: z.string().min(1, "Required"),
   period_month: z.string().min(1, "Required"),
   transaction_type: z.string().min(1, "Required"),
-  sequence_number: z.string().min(1, "Required"),
+  sequence_number: z.string().optional(),
   claim_type: z.string().min(1, "Required"),
 });
 
