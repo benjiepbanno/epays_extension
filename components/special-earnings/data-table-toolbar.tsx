@@ -9,10 +9,7 @@ import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { DataTableViewOptions } from "../data-table-reusable-components/data-table-view-options";
 import NewSpecialEarningsDialog from "./new/new-special-earnings-dialog";
 
-import {
-  appointment_statuses,
-  earnings_statuses,
-} from "@/lib/special-earnings/data";
+import { appointment_statuses, earnings_statuses } from "@/lib/data";
 import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
 import { DataTableDeleteSelected } from "./delete/data-table-delete-selected";
 
@@ -32,12 +29,12 @@ export function DataTableToolbar<TData>({
   }[] = response.body ?? [];
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center gap-2">
+    <div className="flex flex-row gap-24 items-start">
+      <div className="flex flex-wrap flex-1 items-center gap-2">
         <NewSpecialEarningsDialog />
 
         <Input
-          placeholder="Filter employees..."
+          placeholder="Search employee name..."
           value={
             (table.getColumn("employee_name")?.getFilterValue() as string) ?? ""
           }
@@ -77,13 +74,14 @@ export function DataTableToolbar<TData>({
             variant="ghost"
             size="sm"
             onClick={() => table.resetColumnFilters()}
+            className="text-red-500 hover:text-red-600 hover:bg-red-100"
           >
-            Reset
             <X />
+            Reset
           </Button>
         )}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-row items-center gap-2">
         <DataTableDeleteSelected table={table} />
         <DataTableViewOptions table={table} />
       </div>

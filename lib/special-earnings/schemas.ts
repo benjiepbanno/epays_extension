@@ -2,10 +2,11 @@ import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 export const specialEarningsSchema = z.object({
-  id: z.number(),
-  employee_number: z.string(),
-  employee_name: z.string().nullable(),
+  special_earnings_id: z.number(),
+  personnel_id: z.string(),
+  personnel_name: z.string().nullable(),
   appointment_status_code: z.string(),
+  office_code: z.string().nullable(),
   earnings_status_code: z.string(),
   earnings_code: z.string(),
   amount: z.number(),

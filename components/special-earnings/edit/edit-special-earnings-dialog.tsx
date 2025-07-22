@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -49,10 +47,12 @@ export default function EditSpecialEarningsDialog({ open, setOpen }: Props) {
             </div>
           ) : get_special_earnings_error ? (
             <div className="flex flex-col justify-start h-full">
+              <div>there</div>
               <ErrorAlert error={get_special_earnings_error} />
             </div>
           ) : get_earnings_codes_error ? (
             <div className="flex flex-col justify-start h-full">
+              <div>here</div>
               <ErrorAlert error={get_earnings_codes_error} />
             </div>
           ) : get_special_earnings_response.body ? (

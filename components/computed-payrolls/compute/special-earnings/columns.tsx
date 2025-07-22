@@ -1,19 +1,16 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "../data-table-reusable-components/data-table-column-header";
-import { DataTableRowActions } from "./data-table-row-actions";
+import { DataTableColumnHeader } from "@/components/data-table-reusable-components/data-table-column-header";
 
-import { SpecialEarnings } from "@/lib/special-earnings/schemas";
-import { appointment_statuses, earnings_statuses } from "@/lib/data";
-import { formatPeriod } from "@/lib/special-earnings/utils";
+import { SpecialEarnings } from "@/lib/computed-payrolls/schemas";
+import { appointment_statuses } from "@/lib/data";
 import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
 
-import { Badge } from "../ui/badge";
-import { Checkbox } from "../ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
-  // Select
   {
     id: "select",
     header: ({ table }) => (
@@ -38,23 +35,23 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  // Personnel ID
   {
-    accessorKey: "personnel_id",
+    accessorKey: "employee_number",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ID" />
+      <DataTableColumnHeader column={column} title="Employee Number" />
     ),
     enableSorting: false,
     enableHiding: false,
   },
-  // Personnel Name
   {
-    accessorKey: "personnel_name",
+    accessorKey: "employee_name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Personnel Name" />
+      <DataTableColumnHeader column={column} title="Employee Name" />
+    ),
+    cell: ({ row }) => (
+      <div className="min-w-[200px]">{row.getValue("employee_name")}</div>
     ),
   },
-  // Appointment Status Code
   {
     accessorKey: "appointment_status_code",
     header: ({ column }) => (
@@ -75,24 +72,11 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       );
     },
     enableSorting: false,
-    enableHiding: true,
+    enableHiding: false,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
   },
-  // Office Code
-  {
-    accessorKey: "office_code",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Office" />
-    ),
-    enableSorting: false,
-    enableHiding: true,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  // Earnings Code
   {
     accessorKey: "earnings_code",
     header: ({ column }) => (
@@ -131,7 +115,6 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       return value.includes(row.getValue(id));
     },
   },
-  // Amount
   {
     accessorKey: "amount",
     header: ({ column }) => (
@@ -146,71 +129,5 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
 
       return <div>{formatted}</div>;
     },
-    enableSorting: false,
-    enableHiding: false,
-  },
-  // Period From
-  {
-    accessorKey: "period_from",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Period From" />
-    ),
-    cell: ({ row }) => <div>{formatPeriod(row.getValue("period_from"))}</div>,
-    enableSorting: true,
-    enableHiding: false,
-  },
-  // Period To
-  {
-    accessorKey: "period_to",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Period To" />
-    ),
-    cell: ({ row }) => <div>{formatPeriod(row.getValue("period_to"))}</div>,
-    enableSorting: true,
-    enableHiding: false,
-  },
-  // Earnings Status Code
-  {
-    accessorKey: "earnings_status_code",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Earnings Status" />
-    ),
-    cell: ({ row }) => {
-      const earnings_status = earnings_statuses.find(
-        (earnings_status) =>
-          earnings_status.value === row.original.earnings_status_code
-      );
-
-      return (
-        <div>
-          {earnings_status && (
-            <div className="flex gap-2 items-center">
-              <div className="inline-grid *:[grid-area:1/1]">
-                {earnings_status.value === "1" && (
-                  <div
-                    className={`status status-lg ${earnings_status.css} animate-ping`}
-                  ></div>
-                )}
-
-                <div
-                  className={`status status-lg ${earnings_status.css}`}
-                ></div>
-              </div>
-              <div className="">{earnings_status.label}</div>
-            </div>
-          )}
-        </div>
-      );
-    },
-    enableSorting: false,
-    enableHiding: false,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  // Actions
-  {
-    id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ];

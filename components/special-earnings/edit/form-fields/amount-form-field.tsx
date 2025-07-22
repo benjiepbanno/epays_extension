@@ -129,6 +129,7 @@ export default function AmountFormField({ form, salary_rate }: Props) {
                             });
                           }
                         }}
+                        disabled={salary_rate === null}
                         placeholder="%"
                         className="w-28"
                       />
