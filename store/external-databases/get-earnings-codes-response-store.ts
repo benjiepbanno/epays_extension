@@ -1,4 +1,4 @@
-import { getEarningsCodes } from "@/actions/special-earnings-actions";
+import { getEarningsCodes } from "@/actions/external-databases-actions";
 import { create } from "zustand";
 
 type Response = {

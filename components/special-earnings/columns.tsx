@@ -7,10 +7,13 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { SpecialEarnings } from "@/lib/special-earnings/schemas";
 import { appointment_statuses, earnings_statuses } from "@/lib/data";
 import { formatPeriod } from "@/lib/special-earnings/utils";
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 import { Badge } from "../ui/badge";
 import { Checkbox } from "../ui/checkbox";
+import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import DataTableCellMissingValue from "../data-table-reusable-components/data-table-cell-missing-value";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   // Select
@@ -53,6 +56,19 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Personnel Name" />
     ),
+    cell: ({ row }) => {
+      const personnel_name = row.original.personnel_name;
+
+      return (
+        <div>
+          {personnel_name ? (
+            <div>{personnel_name}</div>
+          ) : (
+            <DataTableCellMissingValue />
+          )}
+        </div>
+      );
+    },
   },
   // Appointment Status Code
   {
@@ -86,6 +102,30 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Office" />
     ),
+    cell: ({ row }) => {
+      const { response } = useGetOfficesResponseStore();
+      const offices: {
+        code: string;
+        name: string;
+        abbr: string;
+      }[] = response.body ?? [];
+
+      const office = offices.find(
+        (office) => office.code === row.original.office_code
+      );
+
+      return (
+        <div>
+          {office ? (
+            <>
+              <Badge variant="outline">{office.abbr}</Badge>
+            </>
+          ) : (
+            <DataTableCellMissingValue />
+          )}
+        </div>
+      );
+    },
     enableSorting: false,
     enableHiding: true,
     filterFn: (row, id, value) => {
@@ -112,15 +152,15 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       return (
         <div>
           {earnings_code ? (
-            <div>
+            <>
               <Badge variant="secondary">{earnings_code.code}</Badge>
               <span className="text-xs"> {earnings_code.description}</span>
-            </div>
+            </>
           ) : (
-            <div>
+            <>
               <Badge variant="secondary">{row.original.earnings_code}</Badge>
               <Badge variant="destructive">Unknown</Badge>
-            </div>
+            </>
           )}
         </div>
       );

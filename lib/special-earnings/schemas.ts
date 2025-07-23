@@ -1,20 +1,24 @@
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
+// Data Table
+
 export const specialEarningsSchema = z.object({
   special_earnings_id: z.number(),
   personnel_id: z.string(),
   personnel_name: z.string().nullable(),
   appointment_status_code: z.string(),
   office_code: z.string().nullable(),
-  earnings_status_code: z.string(),
   earnings_code: z.string(),
   amount: z.number(),
   period_from: z.string(),
   period_to: z.string(),
+  earnings_status_code: z.string(),
 });
 
 export type SpecialEarnings = z.infer<typeof specialEarningsSchema>;
+
+// New Form
 
 export const newFormSchema = z.object({
   employee_number: z.string().min(1, "Required"),
@@ -30,6 +34,8 @@ export const newFormSchema = z.object({
 
 export type NewFormData = z.infer<typeof newFormSchema>;
 export type NewFormType = UseFormReturn<NewFormData>;
+
+// Edit Form
 
 export const editFormSchema = z.object({
   special_earnings_id: z.coerce.number().positive("Required"),

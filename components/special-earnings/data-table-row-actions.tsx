@@ -34,9 +34,9 @@ export function DataTableRowActions<TData>({
 
   useEffect(() => {
     if (openEditDialog) {
-      fetchAndSetResponse({ special_earnings_id: special_earnings.id });
+      fetchAndSetResponse({ special_earnings_id: special_earnings.special_earnings_id });
     }
-  }, [openEditDialog, fetchAndSetResponse, special_earnings.id]);
+  }, [openEditDialog, fetchAndSetResponse, special_earnings.special_earnings_id]);
 
   return (
     <>
@@ -77,7 +77,7 @@ export function DataTableRowActions<TData>({
         <DeleteSpecialEarningsDialog
           open={openDeleteDialog}
           setOpen={setOpenDeleteDialog}
-          special_earnings_id={special_earnings.id}
+          special_earnings_id={special_earnings.special_earnings_id}
         />
       )}
     </>

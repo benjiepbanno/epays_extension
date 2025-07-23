@@ -5,7 +5,7 @@ import { DataTableColumnHeader } from "@/components/data-table-reusable-componen
 
 import { SpecialEarnings } from "@/lib/computed-payrolls/schemas";
 import { appointment_statuses } from "@/lib/data";
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";

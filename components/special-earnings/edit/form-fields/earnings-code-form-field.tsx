@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { EditFormType } from "@/lib/special-earnings/schemas";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -17,7 +17,7 @@ import NewSpecialEarningsFormSkeleton from "./new-special-earnings-form-skeleton
 import ErrorAlert from "../error-alert";
 
 import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 export default function NewSpecialEarningsDialog() {
   const {

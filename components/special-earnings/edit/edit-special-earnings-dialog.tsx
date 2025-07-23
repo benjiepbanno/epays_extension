@@ -13,7 +13,7 @@ import ErrorAlert from "../error-alert";
 
 import { useGetResponseStore } from "@/store/special-earnings/get-response-store";
 
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 type Props = {
   open: boolean;
@@ -47,12 +47,10 @@ export default function EditSpecialEarningsDialog({ open, setOpen }: Props) {
             </div>
           ) : get_special_earnings_error ? (
             <div className="flex flex-col justify-start h-full">
-              <div>there</div>
               <ErrorAlert error={get_special_earnings_error} />
             </div>
           ) : get_earnings_codes_error ? (
             <div className="flex flex-col justify-start h-full">
-              <div>here</div>
               <ErrorAlert error={get_earnings_codes_error} />
             </div>
           ) : get_special_earnings_response.body ? (

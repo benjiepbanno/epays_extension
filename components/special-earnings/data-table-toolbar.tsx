@@ -5,13 +5,15 @@ import { X } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { DataTableViewOptions } from "../data-table-reusable-components/data-table-view-options";
+
 import NewSpecialEarningsDialog from "./new/new-special-earnings-dialog";
+import { DataTableFacetedFilter } from "../data-table-reusable-components/data-table-faceted-filter";
+import { DataTableDeleteSelected } from "./delete/data-table-delete-selected";
+import { DataTableViewOptions } from "../data-table-reusable-components/data-table-view-options";
 
 import { appointment_statuses, earnings_statuses } from "@/lib/data";
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
-import { DataTableDeleteSelected } from "./delete/data-table-delete-selected";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
+import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -22,11 +24,19 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const { response } = useGetEarningsCodesResponseStore();
+  const { response: offices_response } = useGetOfficesResponseStore();
+  const { response: earnings_codes_response } =
+    useGetEarningsCodesResponseStore();
+
+  const offices: {
+    code: string;
+    name: string;
+  }[] = offices_response.body ?? [];
+
   const earnings_codes: {
     code: string;
     description: string;
-  }[] = response.body ?? [];
+  }[] = earnings_codes_response.body ?? [];
 
   return (
     <div className="flex flex-row gap-24 items-start">
@@ -34,12 +44,15 @@ export function DataTableToolbar<TData>({
         <NewSpecialEarningsDialog />
 
         <Input
-          placeholder="Search employee name..."
+          placeholder="Search personnel name..."
           value={
-            (table.getColumn("employee_name")?.getFilterValue() as string) ?? ""
+            (table.getColumn("personnel_name")?.getFilterValue() as string) ??
+            ""
           }
           onChange={(event) =>
-            table.getColumn("employee_name")?.setFilterValue(event.target.value)
+            table
+              .getColumn("personnel_name")
+              ?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
@@ -49,6 +62,16 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("appointment_status_code")}
             title="Appointment Status"
             options={appointment_statuses}
+          />
+        )}
+        {table.getColumn("office_code") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("office_code")}
+            title="Office"
+            options={offices.map((office) => ({
+              label: office.name,
+              value: office.code,
+            }))}
           />
         )}
         {table.getColumn("earnings_code") && (

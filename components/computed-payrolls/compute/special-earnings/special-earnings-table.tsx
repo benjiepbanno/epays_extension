@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { SpecialEarnings } from "@/lib/computed-payrolls/schemas";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { useGetEarningsCodesResponseStore } from "@/store/special-earnings/get-earnings-codes-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 type Props = {
   special_earnings: SpecialEarnings[];
