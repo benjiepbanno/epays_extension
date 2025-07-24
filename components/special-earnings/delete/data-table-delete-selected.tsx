@@ -21,12 +21,15 @@ import { toast } from "sonner";
 
 interface DataTableDeleteSelectedProps<TData> {
   table: Table<TData>;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 export function DataTableDeleteSelected<TData>({
   table,
+  open,
+  setOpen,
 }: DataTableDeleteSelectedProps<TData>) {
-  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const selected = table
@@ -61,16 +64,6 @@ export function DataTableDeleteSelected<TData>({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="destructive"
-          size="sm"
-          disabled={selected.length === 0}
-        >
-          <Trash2 />
-          Delete Selected
-        </Button>
-      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Special Earnings</AlertDialogTitle>

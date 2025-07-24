@@ -32,15 +32,15 @@ export default function EditSpecialEarningsDialog({ open, setOpen }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
+      <DialogContent className="min-w-xl">
         <DialogHeader>
           <DialogTitle>Edit Special Earnings</DialogTitle>
           <DialogDescription>
-            Update the selected employee's special earnings details.
+            Update the selected personnel's special earnings details.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 min-h-102">
+        <div className="flex flex-col gap-4 min-h-125">
           {get_special_earnings_is_loading ? (
             <div className="flex flex-col justify-end h-full">
               <EditSpecialEarningsFormSkeleton />

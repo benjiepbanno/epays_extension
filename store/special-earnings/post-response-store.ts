@@ -11,7 +11,7 @@ type ResponseState = {
   error: string | null;
 
   fetchAndSetResponse: (params: {
-    employee_number: string;
+    personnel_id: string;
     appointment_status_code: string;
     earnings_status_code: string;
     earnings_code: string;

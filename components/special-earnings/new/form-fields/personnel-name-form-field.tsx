@@ -10,19 +10,19 @@ import { Input } from "@/components/ui/input";
 
 type Props = {
   form: NewFormType;
-  employee_name: string;
+  personnel_name: string;
 };
 
-export default function EmployeeNameFormField({ form, employee_name }: Props) {
+export default function PersonnelNameFormField({ form, personnel_name }: Props) {
   return (
     <FormField
       control={form.control}
-      name="employee_number"
+      name="personnel_id"
       render={() => (
         <FormItem>
-          <FormLabel>Employee Name</FormLabel>
+          <FormLabel>Personnel Name</FormLabel>
           <FormControl>
-            <Input disabled value={employee_name} />
+            <Input disabled value={personnel_name} className="truncate" />
           </FormControl>
         </FormItem>
       )}

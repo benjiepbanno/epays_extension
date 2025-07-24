@@ -15,20 +15,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
+import { useGetPersonnelResponseStore } from "@/store/external-databases/get-personnel-response-store";
 
 const formSchema = z.object({
-  employee_number: z.string().min(1, "Required"),
+  personnel_id: z.string().min(1, "Required"),
 });
 
-export default function EmployeeForm() {
+export default function PersonnelForm() {
   const { response, is_loading, fetchAndSetResponse } =
-    useGetEmployeeResponseStore();
+    useGetPersonnelResponseStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      employee_number: response.body?.employee_number ?? "",
+      personnel_id: response.body?.personnel_id ?? "",
     },
   });
 
@@ -42,12 +42,12 @@ export default function EmployeeForm() {
         <div className="grid grid-cols-2 gap-4 items-end">
           <FormField
             control={form.control}
-            name="employee_number"
+            name="personnel_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Employee Number</FormLabel>
+                <FormLabel>Personnel ID</FormLabel>
                 <FormControl>
-                  <Input placeholder="Input an employee number" {...field} />
+                  <Input placeholder="Input personnel id" {...field} />
                 </FormControl>
               </FormItem>
             )}

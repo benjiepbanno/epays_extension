@@ -22,7 +22,7 @@ export type SpecialEarnings = z.infer<typeof specialEarningsSchema>;
 // New Form
 
 export const newFormSchema = z.object({
-  employee_number: z.string().min(1, "Required"),
+  personnel_id: z.string().min(1, "Required"),
   appointment_status_code: z.string().min(1, "Required"),
   earnings_status_code: z.string().min(1, "Required"),
   earnings_code: z.string().min(1, "Required"),
@@ -40,7 +40,7 @@ export type NewFormType = UseFormReturn<NewFormData>;
 
 export const editFormSchema = z.object({
   special_earnings_id: z.coerce.number().positive("Required"),
-  employee_number: z.string().min(1, "Required"),
+  personnel_id: z.string().min(1, "Required"),
   appointment_status_code: z.string().min(1, "Required"),
   earnings_status_code: z.string().min(1, "Required"),
   earnings_code: z.string().min(1, "Required"),

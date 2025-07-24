@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Table } from "@tanstack/react-table";
-import { Plus, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -13,9 +13,10 @@ import { DataTableDeleteSelected } from "./delete/data-table-delete-selected";
 import { DataTableViewOptions } from "../data-table-reusable-components/data-table-view-options";
 
 import { appointment_statuses, earnings_statuses } from "@/lib/data";
-import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
+import { specialEarningsSchema } from "@/lib/special-earnings/schemas";
 import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
 import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
+import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -48,6 +49,11 @@ export function DataTableToolbar<TData>({
   }[] = earnings_codes_response.body ?? [];
 
   const [openNewDialog, setOpenNewDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const selected = table
+    .getFilteredSelectedRowModel()
+    .rows.map((row) => specialEarningsSchema.parse(row.original));
 
   return (
     <div className="flex flex-row gap-24 items-start">
@@ -56,13 +62,6 @@ export function DataTableToolbar<TData>({
           <Plus />
           New
         </Button>
-
-        {openNewDialog && (
-          <NewSpecialEarningsDialog
-            open={openNewDialog}
-            setOpen={setOpenNewDialog}
-          />
-        )}
 
         <Input
           placeholder="Search personnel name..."
@@ -135,10 +134,35 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
+
       <div className="flex flex-row items-center gap-2">
-        <DataTableDeleteSelected table={table} />
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled={selected.length === 0}
+          onClick={() => setOpenDeleteDialog(true)}
+        >
+          <Trash2 />
+          Delete Selected
+        </Button>
+
         <DataTableViewOptions table={table} />
       </div>
+
+      {openNewDialog && (
+        <NewSpecialEarningsDialog
+          open={openNewDialog}
+          setOpen={setOpenNewDialog}
+        />
+      )}
+
+      {openDeleteDialog && (
+        <DataTableDeleteSelected
+          table={table}
+          open={openDeleteDialog}
+          setOpen={setOpenDeleteDialog}
+        />
+      )}
     </div>
   );
 }
