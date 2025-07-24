@@ -14,6 +14,7 @@ import { Checkbox } from "../ui/checkbox";
 import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import DataTableCellMissingValue from "../data-table-reusable-components/data-table-cell-missing-value";
+import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   // Select
@@ -60,9 +61,9 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       const personnel_name = row.original.personnel_name;
 
       return (
-        <div>
+        <div className="max-w-[300px]">
           {personnel_name ? (
-            <div>{personnel_name}</div>
+            <span className="text-wrap">{personnel_name}</span>
           ) : (
             <DataTableCellMissingValue />
           )}
@@ -85,7 +86,7 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       return (
         <div>
           {appointment_status && (
-            <Badge variant="outline">{appointment_status.label}</Badge>
+            <Badge variant="secondary">{appointment_status.label}</Badge>
           )}
         </div>
       );
@@ -115,10 +116,59 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       );
 
       return (
-        <div>
+        <div className="max-w-[200px]">
           {office ? (
             <>
-              <Badge variant="outline">{office.abbr}</Badge>
+              <Badge variant="secondary">{office.code}</Badge>
+              <span className="text-xs text-wrap"> {office.name}</span>
+            </>
+          ) : row.getValue("office_code") ? (
+            <>
+              <Badge variant="outline">{row.getValue("office_code")}</Badge>
+              <span className="text-xs text-wrap"> Unknown</span>
+            </>
+          ) : (
+            <DataTableCellMissingValue />
+          )}
+        </div>
+      );
+    },
+    enableSorting: false,
+    enableHiding: true,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  // Workstation Code
+  {
+    accessorKey: "workstation_code",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Workstation" />
+    ),
+    cell: ({ row }) => {
+      const { response } = useGetWorkstationsResponseStore();
+      const workstations: {
+        code: string;
+        name: string;
+      }[] = response.body ?? [];
+
+      const workstation = workstations.find(
+        (workstation) => workstation.code === row.original.workstation_code
+      );
+
+      return (
+        <div className="max-w-[200px]">
+          {workstation ? (
+            <>
+              <Badge variant="secondary">{workstation.code}</Badge>
+              <span className="text-xs text-wrap"> {workstation.name}</span>
+            </>
+          ) : row.getValue("workstation_code") ? (
+            <>
+              <Badge variant="outline">
+                {row.getValue("workstation_code")}
+              </Badge>
+              <span className="text-xs text-wrap"> Unknown</span>
             </>
           ) : (
             <DataTableCellMissingValue />
@@ -150,11 +200,14 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       );
 
       return (
-        <div>
+        <div className="max-w-[200px]">
           {earnings_code ? (
             <>
               <Badge variant="secondary">{earnings_code.code}</Badge>
-              <span className="text-xs"> {earnings_code.description}</span>
+              <span className="text-xs text-wrap">
+                {" "}
+                {earnings_code.description}
+              </span>
             </>
           ) : (
             <>

@@ -1,5 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
-import { z } from "zod";
+import { nullable, z } from "zod";
 
 // Data Table
 
@@ -9,6 +9,7 @@ export const specialEarningsSchema = z.object({
   personnel_name: z.string().nullable(),
   appointment_status_code: z.string(),
   office_code: z.string().nullable(),
+  workstation_code: z.string().nullable(),
   earnings_code: z.string(),
   amount: z.number(),
   period_from: z.string(),

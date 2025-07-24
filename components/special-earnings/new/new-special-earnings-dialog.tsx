@@ -1,15 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
 
 import EmployeeForm from "./employee-form";
 import NewSpecialEarningsForm from "./new-special-earnings-form";
@@ -19,7 +16,12 @@ import ErrorAlert from "../error-alert";
 import { useGetEmployeeResponseStore } from "@/store/special-earnings/get-employee-response-store";
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
-export default function NewSpecialEarningsDialog() {
+type Props = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
+
+export default function NewSpecialEarningsDialog({ open, setOpen }: Props) {
   const {
     response: get_employee_response,
     is_loading: get_employee_is_loading,
@@ -30,14 +32,7 @@ export default function NewSpecialEarningsDialog() {
     useGetEarningsCodesResponseStore();
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus />
-          New
-        </Button>
-      </DialogTrigger>
-
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="min-w-xl">
         <DialogHeader>
           <DialogTitle>New Special Earnings</DialogTitle>

@@ -6,6 +6,7 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { SpecialEarnings } from "@/lib/special-earnings/schemas";
 import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
+import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 
 type Props = {
@@ -19,6 +20,11 @@ export default function SpecialEarningsTable({ special_earnings }: Props) {
   } = useGetOfficesResponseStore();
 
   const {
+    response: get_workstations_response,
+    fetchAndSetResponse: fetchAndSetWorkstationsResponse,
+  } = useGetWorkstationsResponseStore();
+
+  const {
     response: get_earnings_codes_response,
     fetchAndSetResponse: fetchAndSetEarningsCodesResponse,
   } = useGetEarningsCodesResponseStore();
@@ -30,13 +36,16 @@ export default function SpecialEarningsTable({ special_earnings }: Props) {
   }, [get_offices_response.body, fetchAndSetOfficesResponse]);
 
   useEffect(() => {
+    if (!get_workstations_response.body) {
+      fetchAndSetWorkstationsResponse();
+    }
+  }, [get_workstations_response.body, fetchAndSetWorkstationsResponse]);
+
+  useEffect(() => {
     if (!get_earnings_codes_response.body) {
       fetchAndSetEarningsCodesResponse();
     }
   }, [get_earnings_codes_response.body, fetchAndSetEarningsCodesResponse]);
-
-  console.log(get_offices_response.body);
-  console.log(get_earnings_codes_response.body);
 
   return (
     <div>

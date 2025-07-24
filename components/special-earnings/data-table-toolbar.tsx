@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -14,6 +15,7 @@ import { DataTableViewOptions } from "../data-table-reusable-components/data-tab
 import { appointment_statuses, earnings_statuses } from "@/lib/data";
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
+import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -25,23 +27,42 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const { response: offices_response } = useGetOfficesResponseStore();
+  const { response: workstations_response } = useGetWorkstationsResponseStore();
   const { response: earnings_codes_response } =
     useGetEarningsCodesResponseStore();
 
   const offices: {
     code: string;
     name: string;
+    abbr: string;
   }[] = offices_response.body ?? [];
+
+  const workstations: {
+    code: string;
+    name: string;
+  }[] = workstations_response.body ?? [];
 
   const earnings_codes: {
     code: string;
     description: string;
   }[] = earnings_codes_response.body ?? [];
 
+  const [openNewDialog, setOpenNewDialog] = useState(false);
+
   return (
     <div className="flex flex-row gap-24 items-start">
       <div className="flex flex-wrap flex-1 items-center gap-2">
-        <NewSpecialEarningsDialog />
+        <Button size="sm" onClick={() => setOpenNewDialog(true)}>
+          <Plus />
+          New
+        </Button>
+
+        {openNewDialog && (
+          <NewSpecialEarningsDialog
+            open={openNewDialog}
+            setOpen={setOpenNewDialog}
+          />
+        )}
 
         <Input
           placeholder="Search personnel name..."
@@ -71,6 +92,16 @@ export function DataTableToolbar<TData>({
             options={offices.map((office) => ({
               label: office.name,
               value: office.code,
+            }))}
+          />
+        )}
+        {table.getColumn("workstation_code") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("workstation_code")}
+            title="Workstation"
+            options={workstations.map((workstation) => ({
+              label: workstation.name,
+              value: workstation.code,
             }))}
           />
         )}
