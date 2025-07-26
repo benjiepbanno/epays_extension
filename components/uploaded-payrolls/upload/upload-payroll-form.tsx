@@ -35,7 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Plus, FolderOpen, Trash2, ChevronDown, RotateCcw } from "lucide-react";
+import { Plus, FolderOpen, X, Trash2, ChevronDown, RotateCcw } from "lucide-react";
 
 const formSchema = z.object({
   payroll_files: z
@@ -223,32 +223,90 @@ export default function UploadPayrollForm({ setStep }: Props) {
         // Set the direct path
         form.setValue("payroll_path", selectedPath);
         
-        // Create representative files for the path to maintain functionality
-        // These represent the expected files in the selected folder
-        const representativeFiles = ALLOWED_FILES.map((fileName) => {
-          const file = new File([''], fileName, { type: 'application/octet-stream' });
-          // Mark these as path-based files
-          Object.defineProperty(file, 'isPathBased', {
-            value: true,
-            writable: false
+        // Check which files actually exist in the directory
+        try {
+          const response = await fetch('/api/payroll-paths/check-files', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              path: selectedPath,
+              expectedFiles: ALLOWED_FILES 
+            }),
           });
-          Object.defineProperty(file, 'sourcePath', {
-            value: selectedPath,
-            writable: false
+          
+          if (response.ok) {
+            const { existingFiles, missingFiles } = await response.json();
+            
+            // Create representative files only for existing files
+            const actualFiles = existingFiles.map((fileName: string) => {
+              const file = new File([''], fileName, { type: 'application/octet-stream' });
+              
+              // Mark these as path-based files
+              Object.defineProperty(file, 'isPathBased', {
+                value: true,
+                writable: false
+              });
+              Object.defineProperty(file, 'sourcePath', {
+                value: selectedPath,
+                writable: false
+              });
+              Object.defineProperty(file, 'webkitRelativePath', {
+                value: `${folderName}/${fileName}`,
+                writable: false
+              });
+              
+              return file;
+            });
+            
+            form.setValue("payroll_files", actualFiles);
+            
+            // Show validation error if files are missing
+            if (missingFiles.length > 0) {
+              form.setError("payroll_files", {
+                type: "manual",
+                message: `Missing required .dbf files: ${missingFiles.join(', ')}. Please verify the folder contains all required payroll files.`
+              });
+            } else {
+              form.clearErrors("payroll_files");
+            }
+            
+            console.log('Selected saved path:', selectedPath);
+            console.log('Folder name set to:', folderName);
+            console.log('Files found:', actualFiles.length, 'out of', ALLOWED_FILES.length, 'expected');
+            if (missingFiles.length > 0) {
+              console.log('Missing files:', missingFiles);
+            }
+          } else {
+            // Fallback: create all expected files if API fails
+            const representativeFiles = ALLOWED_FILES.map((fileName) => {
+              const file = new File([''], fileName, { type: 'application/octet-stream' });
+              Object.defineProperty(file, 'isPathBased', { value: true, writable: false });
+              Object.defineProperty(file, 'sourcePath', { value: selectedPath, writable: false });
+              Object.defineProperty(file, 'webkitRelativePath', { value: `${folderName}/${fileName}`, writable: false });
+              return file;
+            });
+            
+            form.setValue("payroll_files", representativeFiles);
+            form.clearErrors("payroll_files");
+            console.log('API failed, using fallback - created representative files for all expected files');
+          }
+        } catch (error) {
+          console.error('Error checking files:', error);
+          
+          // Fallback: create all expected files if check fails
+          const representativeFiles = ALLOWED_FILES.map((fileName) => {
+            const file = new File([''], fileName, { type: 'application/octet-stream' });
+            Object.defineProperty(file, 'isPathBased', { value: true, writable: false });
+            Object.defineProperty(file, 'sourcePath', { value: selectedPath, writable: false });
+            Object.defineProperty(file, 'webkitRelativePath', { value: `${folderName}/${fileName}`, writable: false });
+            return file;
           });
-          Object.defineProperty(file, 'webkitRelativePath', {
-            value: `${folderName}/${fileName}`,
-            writable: false
-          });
-          return file;
-        });
-        
-        form.setValue("payroll_files", representativeFiles);
-        form.clearErrors("payroll_files");
-        
-        console.log('Selected saved path:', selectedPath);
-        console.log('Folder name set to:', folderName);
-        console.log('Representative files created for functionality');
+          
+          form.setValue("payroll_files", representativeFiles);
+          form.clearErrors("payroll_files");
+        }
       } catch (error) {
         console.error('Error handling saved path selection:', error);
       }
@@ -326,9 +384,9 @@ export default function UploadPayrollForm({ setStep }: Props) {
           const filePath = firstFile.path.replace(/\//g, '\\'); // Normalize to Windows path
           pathToSave = filePath.substring(0, filePath.lastIndexOf('\\'));
         } else {
-          // Browser environment - we can only save the folder name
-          // Don't construct fake paths like "D:\folder_name"
-          pathToSave = folderName;
+          // Browser environment - construct the expected full path
+          // Since we can't get the actual path, we'll construct it based on common patterns
+          pathToSave = `D:\\${folderName}`;
         }
         
         if (pathToSave) {
