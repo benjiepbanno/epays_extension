@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { DataTableToolbar } from "./data-table-toolbar";
 import { DataTablePagination } from "@/components/data-table-reusable-components/data-table-pagination";
 
 interface DataTableProps<TData, TValue> {
@@ -74,7 +75,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* <DataTableToolbar table={table} /> */}
+      <DataTableToolbar table={table} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

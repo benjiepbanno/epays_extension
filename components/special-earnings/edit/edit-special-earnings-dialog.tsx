@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import EditSpecialEarningsForm from "./edit-special-earnings-form";
 import EditSpecialEarningsFormSkeleton from "./edit-special-earnings-form-skeleton";
-import ErrorAlert from "../error-alert";
+import ErrorAlert from "../../error-alert";
 
 import { useGetResponseStore } from "@/store/special-earnings/get-response-store";
 

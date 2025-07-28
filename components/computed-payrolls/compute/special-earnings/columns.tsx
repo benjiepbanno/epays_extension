@@ -6,11 +6,15 @@ import { DataTableColumnHeader } from "@/components/data-table-reusable-componen
 import { SpecialEarnings } from "@/lib/computed-payrolls/schemas";
 import { appointment_statuses } from "@/lib/data";
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
+import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
+import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import DataTableCellMissingValue from "@/components/data-table-reusable-components/data-table-cell-missing-value";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
+  // Select
   {
     id: "select",
     header: ({ table }) => (
@@ -35,23 +39,36 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+  // Personnel ID
   {
-    accessorKey: "employee_number",
+    accessorKey: "personnel_id",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Employee Number" />
+      <DataTableColumnHeader column={column} title="ID" />
     ),
     enableSorting: false,
     enableHiding: false,
   },
+  // Personnel Name
   {
-    accessorKey: "employee_name",
+    accessorKey: "personnel_name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Employee Name" />
+      <DataTableColumnHeader column={column} title="Personnel Name" />
     ),
-    cell: ({ row }) => (
-      <div className="min-w-[200px]">{row.getValue("employee_name")}</div>
-    ),
+    cell: ({ row }) => {
+      const personnel_name = row.original.personnel_name;
+
+      return (
+        <div className="max-w-[300px]">
+          {personnel_name ? (
+            <span className="text-wrap">{personnel_name}</span>
+          ) : (
+            <DataTableCellMissingValue />
+          )}
+        </div>
+      );
+    },
   },
+  // Appointment Status Code
   {
     accessorKey: "appointment_status_code",
     header: ({ column }) => (
@@ -66,17 +83,103 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       return (
         <div>
           {appointment_status && (
-            <Badge variant="outline">{appointment_status.label}</Badge>
+            <Badge variant="secondary">{appointment_status.label}</Badge>
           )}
         </div>
       );
     },
     enableSorting: false,
-    enableHiding: false,
+    enableHiding: true,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
   },
+  // Office Code
+  {
+    accessorKey: "office_code",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Office" />
+    ),
+    cell: ({ row }) => {
+      const { response } = useGetOfficesResponseStore();
+      const offices: {
+        code: string;
+        name: string;
+        abbr: string;
+      }[] = response.body ?? [];
+
+      const office = offices.find(
+        (office) => office.code === row.original.office_code
+      );
+
+      return (
+        <div className="max-w-[200px]">
+          {office ? (
+            <>
+              <Badge variant="secondary">{office.code}</Badge>
+              <span className="text-xs text-wrap"> {office.name}</span>
+            </>
+          ) : row.getValue("office_code") ? (
+            <>
+              <Badge variant="outline">{row.getValue("office_code")}</Badge>
+              <span className="text-xs text-wrap"> Unknown</span>
+            </>
+          ) : (
+            <DataTableCellMissingValue />
+          )}
+        </div>
+      );
+    },
+    enableSorting: false,
+    enableHiding: true,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  // Workstation Code
+  {
+    accessorKey: "workstation_code",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Workstation" />
+    ),
+    cell: ({ row }) => {
+      const { response } = useGetWorkstationsResponseStore();
+      const workstations: {
+        code: string;
+        name: string;
+      }[] = response.body ?? [];
+
+      const workstation = workstations.find(
+        (workstation) => workstation.code === row.original.workstation_code
+      );
+
+      return (
+        <div className="max-w-[200px]">
+          {workstation ? (
+            <>
+              <Badge variant="secondary">{workstation.code}</Badge>
+              <span className="text-xs text-wrap"> {workstation.name}</span>
+            </>
+          ) : row.getValue("workstation_code") ? (
+            <>
+              <Badge variant="outline">
+                {row.getValue("workstation_code")}
+              </Badge>
+              <span className="text-xs text-wrap"> Unknown</span>
+            </>
+          ) : (
+            <DataTableCellMissingValue />
+          )}
+        </div>
+      );
+    },
+    enableSorting: false,
+    enableHiding: true,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  // Earnings Code
   {
     accessorKey: "earnings_code",
     header: ({ column }) => (
@@ -94,17 +197,20 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       );
 
       return (
-        <div>
+        <div className="max-w-[200px]">
           {earnings_code ? (
-            <div>
+            <>
               <Badge variant="secondary">{earnings_code.code}</Badge>
-              <span className="text-xs"> {earnings_code.description}</span>
-            </div>
+              <span className="text-xs text-wrap">
+                {" "}
+                {earnings_code.description}
+              </span>
+            </>
           ) : (
-            <div>
+            <>
               <Badge variant="secondary">{row.original.earnings_code}</Badge>
               <Badge variant="destructive">Unknown</Badge>
-            </div>
+            </>
           )}
         </div>
       );
@@ -115,6 +221,7 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
       return value.includes(row.getValue(id));
     },
   },
+  // Amount
   {
     accessorKey: "amount",
     header: ({ column }) => (
@@ -129,5 +236,7 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
 
       return <div>{formatted}</div>;
     },
+    enableSorting: false,
+    enableHiding: false,
   },
 ];

@@ -8,13 +8,13 @@ import { SpecialEarnings } from "@/lib/special-earnings/schemas";
 import { appointment_statuses, earnings_statuses } from "@/lib/data";
 import { formatPeriod } from "@/lib/special-earnings/utils";
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
+import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
+import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
 
 import { Badge } from "../ui/badge";
 import { Checkbox } from "../ui/checkbox";
-import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import DataTableCellMissingValue from "../data-table-reusable-components/data-table-cell-missing-value";
-import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
+
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   // Select

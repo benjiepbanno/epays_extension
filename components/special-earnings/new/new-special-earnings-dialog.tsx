@@ -11,7 +11,7 @@ import {
 import PersonnelForm from "./personnel-form";
 import NewSpecialEarningsForm from "./new-special-earnings-form";
 import NewSpecialEarningsFormSkeleton from "./new-special-earnings-form-skeleton";
-import ErrorAlert from "../error-alert";
+import ErrorAlert from "../../error-alert";
 
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
 import { useGetPersonnelResponseStore } from "@/store/external-databases/get-personnel-response-store";
