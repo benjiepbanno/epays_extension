@@ -1,8 +1,14 @@
 import { getSpecialEarningsWherePeriod } from "@/actions/computed-payrolls-actions";
 import { create } from "zustand";
 
+type Dictionary = {
+  special_earnings_id: number;
+  amount: number;
+  [key: string]: any; // in case there are other fields
+};
+
 type Response = {
-  body: any;
+  body: Dictionary[] | null;
 };
 
 type ResponseState = {
@@ -14,10 +20,12 @@ type ResponseState = {
     period_year: string;
     period_month: string;
   }) => Promise<void>;
+
+  updateAmount: (special_earnings_id: number, new_amount: number) => void;
 };
 
 export const useGetSpecialEarningsResponseStore = create<ResponseState>()(
-  (set) => ({
+  (set, get) => ({
     response: { body: null },
     is_loading: false,
     error: null,
@@ -46,6 +54,22 @@ export const useGetSpecialEarningsResponseStore = create<ResponseState>()(
           is_loading: false,
         });
       }
+    },
+
+    updateAmount: (special_earnings_id: number, new_amount: number) => {
+      const current = get().response.body;
+
+      if (!current) return;
+
+      const updated = current.map((item) =>
+        item.special_earnings_id === special_earnings_id
+          ? { ...item, amount: new_amount }
+          : item
+      );
+
+      set({
+        response: { body: updated },
+      });
     },
   })
 );

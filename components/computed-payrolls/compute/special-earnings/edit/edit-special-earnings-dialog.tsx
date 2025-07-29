@@ -45,7 +45,7 @@ export default function EditSpecialEarningsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 min-h-125">
+        <div className="flex flex-col gap-4 min-h-86">
           {get_special_earnings_is_loading ? (
             <div className="flex flex-col justify-end h-full">
               <EditSpecialEarningsFormSkeleton />
@@ -65,7 +65,7 @@ export default function EditSpecialEarningsDialog({
             </div>
           ) : get_special_earnings_response.body ? (
             <div className="flex flex-col justify-end h-full">
-              {/* <EditSpecialEarningsForm /> */}
+              <EditSpecialEarningsForm amount={amount} />
             </div>
           ) : (
             <div></div>

@@ -70,7 +70,7 @@ export default function EarningsCodeFormField({ form }: Props) {
                         {" "}
                         {earnings_codes.find(
                           (earnings_code) => earnings_code.code === field.value
-                        )?.description || " Unknown earnings code"}
+                        )?.description || "Unknown earnings code"}
                       </span>
                     </div>
                   ) : (
