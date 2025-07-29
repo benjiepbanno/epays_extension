@@ -1,3 +1,4 @@
+import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 // Data Table
@@ -14,3 +15,16 @@ export const specialEarningsSchema = z.object({
 });
 
 export type SpecialEarnings = z.infer<typeof specialEarningsSchema>;
+
+// Edit Special Earnings Form
+
+export const editSpecialEarningsFormSchema = z.object({
+  special_earnings_id: z.coerce.number().positive("Required"),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
+});
+
+export type EditSpecialEarningsFormData = z.infer<
+  typeof editSpecialEarningsFormSchema
+>;
+export type EditSpecialEarningsFormType =
+  UseFormReturn<EditSpecialEarningsFormData>;

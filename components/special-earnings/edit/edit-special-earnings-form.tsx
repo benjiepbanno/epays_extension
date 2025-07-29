@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Check } from "lucide-react";
 
 import PersonnelIdFormField from "./form-fields/personnel-id-form-field";
-import EmployeeNameFormField from "./form-fields/employee-name-form-field";
+import PersonnelNameFormField from "./form-fields/personnel-name-form-field";
 import AppointmentStatusCodeFormField from "./form-fields/appointment-status-code-form-field";
 import EarningsStatusCodeFormField from "./form-fields/earnings-status-code-form-field";
 import EarningsCodeFormField from "./form-fields/earnings-code-form-field";
@@ -75,7 +75,7 @@ export default function EditSpecialEarningsForm() {
             </div>
             {/* Personnel Name */}
             <div className="col-span-1 col-start-1">
-              <EmployeeNameFormField
+              <PersonnelNameFormField
                 form={form}
                 personnel_name={
                   get_special_earnings_response.body?.personnel_name ?? ""

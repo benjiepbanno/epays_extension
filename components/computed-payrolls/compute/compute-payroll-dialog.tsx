@@ -48,7 +48,7 @@ export default function ComputePayrollDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="min-w-6xl">
+      <DialogContent className="min-w-7xl">
         <DialogHeader>
           <DialogTitle>Compute Payroll</DialogTitle>
           <DialogDescription>

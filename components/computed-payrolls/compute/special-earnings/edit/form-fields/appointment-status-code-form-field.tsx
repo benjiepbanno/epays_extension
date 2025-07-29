@@ -1,4 +1,4 @@
-import { EditFormType } from "@/lib/special-earnings/schemas";
+import { EditSpecialEarningsFormType } from "@/lib/computed-payrolls/schemas";
 import { appointment_statuses } from "@/lib/data";
 
 import {
@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  form: EditFormType;
+  form: EditSpecialEarningsFormType;
   appointment_status_code: string;
 };
 
@@ -25,7 +25,7 @@ export default function AppointmentStatusCodeFormField({
   return (
     <FormField
       control={form.control}
-      name="appointment_status_code"
+      name="special_earnings_id"
       render={() => (
         <FormItem>
           <FormLabel>Appointment Status</FormLabel>

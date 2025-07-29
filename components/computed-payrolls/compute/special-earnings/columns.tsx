@@ -12,6 +12,7 @@ import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import DataTableCellMissingValue from "@/components/data-table-reusable-components/data-table-cell-missing-value";
+import { DataTableRowActions } from "./data-table-row-actions";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   // Select
@@ -238,5 +239,10 @@ export const columns: ColumnDef<SpecialEarnings>[] = [
     },
     enableSorting: false,
     enableHiding: false,
+  },
+  // Actions
+  {
+    id: "actions",
+    cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ];
