@@ -1,14 +1,9 @@
 import { getSpecialEarningsWherePeriod } from "@/actions/computed-payrolls-actions";
+import { SpecialEarnings } from "@/lib/computed-payrolls/schemas";
 import { create } from "zustand";
 
-type Dictionary = {
-  special_earnings_id: number;
-  amount: number;
-  [key: string]: any; // in case there are other fields
-};
-
 type Response = {
-  body: Dictionary[] | null;
+  body: SpecialEarnings[] | null;
 };
 
 type ResponseState = {

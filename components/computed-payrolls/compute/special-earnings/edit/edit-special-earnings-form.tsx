@@ -13,6 +13,7 @@ import { useGetSpecialEarningsResponseStore } from "@/store/computed-payrolls/ge
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
+import { toast } from "sonner";
 import { Check } from "lucide-react";
 
 import PersonnelIdFormField from "./form-fields/personnel-id-form-field";
@@ -43,6 +44,7 @@ export default function EditSpecialEarningsForm({ amount }: Props) {
   async function onSubmit(values: EditSpecialEarningsFormData) {
     // Update the item in the store
     updateAmount(values.special_earnings_id, values.amount);
+    toast.success("Special earnings successfully updated.");
   }
 
   return (

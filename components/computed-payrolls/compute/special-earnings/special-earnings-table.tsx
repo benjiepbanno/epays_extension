@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 
 import { SpecialEarnings } from "@/lib/computed-payrolls/schemas";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { columns } from "./data-table/columns";
+import { DataTable } from "./data-table/data-table";
 import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
 import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";

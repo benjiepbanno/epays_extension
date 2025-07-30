@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import ErrorAlert from "@/components/error-alert";
 
 import { useGetResponseStore } from "@/store/special-earnings/get-response-store";
 import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get-earnings-codes-response-store";
+import { AlertCircleIcon } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -44,6 +46,16 @@ export default function EditSpecialEarningsDialog({
             Update the selected personnel's special earnings amount.
           </DialogDescription>
         </DialogHeader>
+
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>Note</AlertTitle>
+          <AlertDescription>
+            Editing the special earnings amount creates a copy of the original
+            record for payroll computation. The original special earnings record
+            in the database remains unchanged.
+          </AlertDescription>
+        </Alert>
 
         <div className="flex flex-col gap-4 min-h-86">
           {get_special_earnings_is_loading ? (

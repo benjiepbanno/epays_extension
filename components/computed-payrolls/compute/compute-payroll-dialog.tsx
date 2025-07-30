@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -57,19 +58,19 @@ export default function ComputePayrollDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-6 min-h-150">
+        <div className="flex flex-col gap-6 min-h-170">
           <PeriodForm />
 
           {is_loading ? (
-            <div>
+            <div className="flex flex-col justify-end h-full">
               <SpecialEarningsTableSkeleton />
             </div>
           ) : error ? (
-            <div>
+            <div className="flex flex-col justify-start h-full">
               <ErrorAlert error={error} />
             </div>
           ) : response.body ? (
-            <div>
+            <div className="flex flex-col justify-end h-full">
               <SpecialEarningsTable special_earnings={response.body || []} />
             </div>
           ) : (

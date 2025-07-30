@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "../data-table-reusable-components/data-table-column-header";
+import { DataTableColumnHeader } from "../../data-table-reusable-components/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 import { SpecialEarnings } from "@/lib/special-earnings/schemas";
@@ -11,10 +11,9 @@ import { useGetEarningsCodesResponseStore } from "@/store/external-databases/get
 import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
 import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";
 
-import { Badge } from "../ui/badge";
-import { Checkbox } from "../ui/checkbox";
-import DataTableCellMissingValue from "../data-table-reusable-components/data-table-cell-missing-value";
-
+import { Badge } from "../../ui/badge";
+import { Checkbox } from "../../ui/checkbox";
+import DataTableCellMissingValue from "../../data-table-reusable-components/data-table-cell-missing-value";
 
 export const columns: ColumnDef<SpecialEarnings>[] = [
   // Select

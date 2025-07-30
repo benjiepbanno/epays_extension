@@ -4,13 +4,13 @@ import { useState } from "react";
 import { Table } from "@tanstack/react-table";
 import { Plus, Trash2, X } from "lucide-react";
 
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
 
-import NewSpecialEarningsDialog from "./new/new-special-earnings-dialog";
-import { DataTableFacetedFilter } from "../data-table-reusable-components/data-table-faceted-filter";
-import { DataTableDeleteSelected } from "./delete/data-table-delete-selected";
-import { DataTableViewOptions } from "../data-table-reusable-components/data-table-view-options";
+import NewSpecialEarningsDialog from "../new/new-special-earnings-dialog";
+import { DataTableFacetedFilter } from "../../data-table-reusable-components/data-table-faceted-filter";
+import { DataTableDeleteSelected } from "../delete/data-table-delete-selected";
+import { DataTableViewOptions } from "../../data-table-reusable-components/data-table-view-options";
 
 import { appointment_statuses, earnings_statuses } from "@/lib/data";
 import { specialEarningsSchema } from "@/lib/special-earnings/schemas";

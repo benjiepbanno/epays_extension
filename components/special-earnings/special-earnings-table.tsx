@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { columns } from "./data-table/columns";
+import { DataTable } from "./data-table/data-table";
 import { SpecialEarnings } from "@/lib/special-earnings/schemas";
 import { useGetOfficesResponseStore } from "@/store/external-databases/get-offices-response-store";
 import { useGetWorkstationsResponseStore } from "@/store/external-databases/get-workstations-response-store";

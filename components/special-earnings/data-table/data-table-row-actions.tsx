@@ -4,17 +4,19 @@ import { useEffect, useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "../../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../../ui/dropdown-menu";
 
-import { specialEarningsSchema } from "@/lib/computed-payrolls/schemas";
+import { specialEarningsSchema } from "@/lib/special-earnings/schemas";
 import { useGetResponseStore } from "@/store/special-earnings/get-response-store";
-import EditSpecialEarningsDialog from "./edit/edit-special-earnings-dialog";
+import EditSpecialEarningsDialog from "../edit/edit-special-earnings-dialog";
+import DeleteSpecialEarningsDialog from "../delete/delete-special-earnings-dialog";
+
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -26,20 +28,15 @@ export function DataTableRowActions<TData>({
   const special_earnings = specialEarningsSchema.parse(row.original);
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const { fetchAndSetResponse } = useGetResponseStore();
 
   useEffect(() => {
     if (openEditDialog) {
-      fetchAndSetResponse({
-        special_earnings_id: special_earnings.special_earnings_id,
-      });
+      fetchAndSetResponse({ special_earnings_id: special_earnings.special_earnings_id });
     }
-  }, [
-    openEditDialog,
-    fetchAndSetResponse,
-    special_earnings.special_earnings_id,
-  ]);
+  }, [openEditDialog, fetchAndSetResponse, special_earnings.special_earnings_id]);
 
   return (
     <>
@@ -57,7 +54,14 @@ export function DataTableRowActions<TData>({
 
         <DropdownMenuContent align="end" className="">
           <DropdownMenuItem onClick={() => setOpenEditDialog(true)}>
-            Edit Amount
+            Edit
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => setOpenDeleteDialog(true)}
+          >
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -66,7 +70,14 @@ export function DataTableRowActions<TData>({
         <EditSpecialEarningsDialog
           open={openEditDialog}
           setOpen={setOpenEditDialog}
-          amount={special_earnings.amount}
+        />
+      )}
+
+      {openDeleteDialog && (
+        <DeleteSpecialEarningsDialog
+          open={openDeleteDialog}
+          setOpen={setOpenDeleteDialog}
+          special_earnings_id={special_earnings.special_earnings_id}
         />
       )}
     </>
