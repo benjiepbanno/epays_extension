@@ -10,22 +10,22 @@ import { Input } from "@/components/ui/input";
 
 type Props = {
   form: EditFormType;
-  employee_number: string;
+  personnel_id: string;
 };
 
-export default function EmployeeNumberFormField({
+export default function PersonnelIdFormField({
   form,
-  employee_number,
+  personnel_id,
 }: Props) {
   return (
     <FormField
       control={form.control}
-      name="employee_number"
+      name="personnel_id"
       render={() => (
         <FormItem>
-          <FormLabel>Employee Number</FormLabel>
+          <FormLabel>Personnel ID</FormLabel>
           <FormControl>
-            <Input disabled value={employee_number} />
+            <Input disabled value={personnel_id} />
           </FormControl>
         </FormItem>
       )}

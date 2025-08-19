@@ -1,5 +1,5 @@
 import { AlertCircleIcon } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 type Props = {
   error: string;

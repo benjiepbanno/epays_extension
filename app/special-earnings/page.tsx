@@ -1,5 +1,5 @@
 import { getAllSpecialEarnings } from "@/actions/special-earnings-actions";
-import ErrorAlert from "@/components/special-earnings/error-alert";
+import ErrorAlert from "@/components/error-alert";
 import SpecialEarningsTable from "@/components/special-earnings/special-earnings-table";
 
 export default async function Page() {

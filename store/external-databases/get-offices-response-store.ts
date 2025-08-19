@@ -1,4 +1,4 @@
-import { postSpecialEarnings } from "@/actions/special-earnings-actions";
+import { getOffices } from "@/actions/external-databases-actions";
 import { create } from "zustand";
 
 type Response = {
@@ -10,29 +10,19 @@ type ResponseState = {
   is_loading: boolean;
   error: string | null;
 
-  fetchAndSetResponse: (params: {
-    personnel_id: string;
-    appointment_status_code: string;
-    earnings_status_code: string;
-    earnings_code: string;
-    amount: number;
-    year_from: string;
-    month_from: string;
-    year_to: string;
-    month_to: string;
-  }) => Promise<void>;
+  fetchAndSetResponse: () => Promise<void>;
 };
 
-export const usePostResponseStore = create<ResponseState>()((set) => ({
+export const useGetOfficesResponseStore = create<ResponseState>()((set) => ({
   response: { body: null },
   is_loading: false,
   error: null,
 
-  fetchAndSetResponse: async (params) => {
+  fetchAndSetResponse: async () => {
     set({ response: { body: null }, is_loading: true, error: null });
 
     try {
-      const { body, error } = await postSpecialEarnings(params);
+      const { body, error } = await getOffices();
 
       if (error) {
         set({

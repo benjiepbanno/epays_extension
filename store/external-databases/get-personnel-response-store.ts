@@ -1,4 +1,4 @@
-import { getEmployee } from "@/actions/special-earnings-actions";
+import { getPersonnel } from "@/actions/external-databases-actions";
 import { create } from "zustand";
 
 type Response = {
@@ -10,12 +10,10 @@ type ResponseState = {
   is_loading: boolean;
   error: string | null;
 
-  fetchAndSetResponse: (params: {
-    employee_number: string;
-  }) => Promise<void>;
+  fetchAndSetResponse: (params: { personnel_id: string }) => Promise<void>;
 };
 
-export const useGetEmployeeResponseStore = create<ResponseState>()((set) => ({
+export const useGetPersonnelResponseStore = create<ResponseState>()((set) => ({
   response: { body: null },
   is_loading: false,
   error: null,
@@ -24,7 +22,7 @@ export const useGetEmployeeResponseStore = create<ResponseState>()((set) => ({
     set({ response: { body: null }, is_loading: true, error: null });
 
     try {
-      const { body, error } = await getEmployee(params);
+      const { body, error } = await getPersonnel(params);
 
       if (error) {
         set({

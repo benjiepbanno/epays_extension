@@ -21,12 +21,15 @@ import { toast } from "sonner";
 
 interface DataTableDeleteSelectedProps<TData> {
   table: Table<TData>;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 export function DataTableDeleteSelected<TData>({
   table,
+  open,
+  setOpen,
 }: DataTableDeleteSelectedProps<TData>) {
-  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const selected = table
@@ -36,18 +39,18 @@ export function DataTableDeleteSelected<TData>({
   async function handleDelete() {
     setIsLoading(true);
 
-    const deletionPromises = selected.map(async (item) => {
+    const deletionPromises = selected.map(async (special_earnings) => {
       const { error } = await deleteSpecialEarnings({
-        special_earnings_id: item.id,
+        special_earnings_id: special_earnings.special_earnings_id,
       });
 
       if (error) {
         toast.error(
-          `Special earnings ${item.earnings_code} has not been deleted`
+          `Special earnings ${special_earnings.earnings_code} has not been deleted`
         );
       } else {
         toast.success(
-          `Special earnings ${item.earnings_code} has been deleted`
+          `Special earnings ${special_earnings.earnings_code} has been deleted`
         );
       }
     });
@@ -61,16 +64,6 @@ export function DataTableDeleteSelected<TData>({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="destructive"
-          size="sm"
-          disabled={selected.length === 0}
-        >
-          <Trash2 />
-          Delete Selected
-        </Button>
-      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Special Earnings</AlertDialogTitle>

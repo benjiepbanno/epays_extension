@@ -1,4 +1,4 @@
-import { NewFormType } from "@/lib/special-earnings/schemas";
+import { EditSpecialEarningsFormType } from "@/lib/computed-payrolls/schemas";
 
 import {
   FormControl,
@@ -9,20 +9,20 @@ import {
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  form: NewFormType;
-  employee_name: string;
+  form: EditSpecialEarningsFormType;
+  personnel_id: string;
 };
 
-export default function EmployeeNameFormField({ form, employee_name }: Props) {
+export default function PersonnelIdFormField({ form, personnel_id }: Props) {
   return (
     <FormField
       control={form.control}
-      name="employee_number"
+      name="special_earnings_id"
       render={() => (
         <FormItem>
-          <FormLabel>Employee Name</FormLabel>
+          <FormLabel>Personnel ID</FormLabel>
           <FormControl>
-            <Input disabled value={employee_name} />
+            <Input disabled value={personnel_id} />
           </FormControl>
         </FormItem>
       )}

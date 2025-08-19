@@ -1,4 +1,4 @@
-import { getEarningsCodes } from "@/actions/special-earnings-actions";
+import { getWorkstations } from "@/actions/external-databases-actions";
 import { create } from "zustand";
 
 type Response = {
@@ -13,7 +13,7 @@ type ResponseState = {
   fetchAndSetResponse: () => Promise<void>;
 };
 
-export const useGetEarningsCodesResponseStore = create<ResponseState>()(
+export const useGetWorkstationsResponseStore = create<ResponseState>()(
   (set) => ({
     response: { body: null },
     is_loading: false,
@@ -23,7 +23,7 @@ export const useGetEarningsCodesResponseStore = create<ResponseState>()(
       set({ response: { body: null }, is_loading: true, error: null });
 
       try {
-        const { body, error } = await getEarningsCodes();
+        const { body, error } = await getWorkstations();
 
         if (error) {
           set({

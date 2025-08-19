@@ -4,19 +4,19 @@ import { useEffect, useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../../ui/dropdown-menu";
 
 import { specialEarningsSchema } from "@/lib/special-earnings/schemas";
-import EditSpecialEarningsDialog from "./edit/edit-special-earnings-dialog";
-import DeleteSpecialEarningsDialog from "./delete/delete-special-earnings-dialog";
-
 import { useGetResponseStore } from "@/store/special-earnings/get-response-store";
+import EditSpecialEarningsDialog from "../edit/edit-special-earnings-dialog";
+import DeleteSpecialEarningsDialog from "../delete/delete-special-earnings-dialog";
+
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -34,9 +34,9 @@ export function DataTableRowActions<TData>({
 
   useEffect(() => {
     if (openEditDialog) {
-      fetchAndSetResponse({ special_earnings_id: special_earnings.id });
+      fetchAndSetResponse({ special_earnings_id: special_earnings.special_earnings_id });
     }
-  }, [openEditDialog, fetchAndSetResponse, special_earnings.id]);
+  }, [openEditDialog, fetchAndSetResponse, special_earnings.special_earnings_id]);
 
   return (
     <>
@@ -77,7 +77,7 @@ export function DataTableRowActions<TData>({
         <DeleteSpecialEarningsDialog
           open={openDeleteDialog}
           setOpen={setOpenDeleteDialog}
-          special_earnings_id={special_earnings.id}
+          special_earnings_id={special_earnings.special_earnings_id}
         />
       )}
     </>

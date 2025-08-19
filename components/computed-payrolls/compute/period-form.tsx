@@ -50,7 +50,7 @@ export default function PeriodForm() {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-8 gap-4 items-end">
           <div className="col-span-2 grid grid-cols-8 gap-1">
-            <div className="col-span-8 text-sm font-medium">Period</div>
+            <div className="col-span-8 text-sm font-medium">Payroll Period</div>
             {/* Year */}
             <div className="col-span-3">
               <FormField
