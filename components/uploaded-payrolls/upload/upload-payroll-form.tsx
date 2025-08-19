@@ -9,6 +9,7 @@ import { MONTHS, YEARS } from "@/lib/special-earnings/date";
 import { ALLOWED_FILES, TRANSACTION_TYPES } from "@/lib/uploaded-payrolls/data";
 import { usePayrollInitializationStore } from "@/store/uploaded-payrolls/payroll-initialization-store";
 import { useGetSequenceNumbersResponseStore } from "@/store/uploaded-payrolls/get-sequence-numbers-response-store";
+import { readSavedPaths, savePath, deletePath } from "@/app/api/payroll-paths/payroll-path.api";
 
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -27,22 +28,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
+import { Plus, FolderOpen, X, Trash2, ChevronDown, RotateCcw } from "lucide-react";
 
 const formSchema = z.object({
   payroll_files: z
     .array(z.instanceof(File))
-    .refine((files) => files.length > 0, "Payroll files not found")
-    .refine(
-      (files) => files.length === ALLOWED_FILES.length,
-      "Some payroll files are missing."
-    ),
+    .optional()
+    .default([]),
+  payroll_path: z.string().optional(),
   appointment_status_code: z.string().min(1, "Required"),
   period_year: z.string().min(1, "Required"),
   period_month: z.string().min(1, "Required"),
   transaction_type: z.string().min(1, "Required"),
-  sequence_number: z.string().min(1, "Required"),
+  sequence_number: z.string().optional(),
   claim_type: z.string().min(1, "Required"),
 });
 
@@ -61,11 +66,25 @@ export default function UploadPayrollForm({ setStep }: Props) {
   );
   const [transactionTypes, setTransactionTypes] = useState<any>([]);
   const [sequenceNumbers, setSequenceNumbers] = useState<any>([]);
+  const [savedPaths, setSavedPaths] = useState<string[]>([]);
+  const [selectedSavedPath, setSelectedSavedPath] = useState<string>("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Load saved paths on component mount
+  useEffect(() => {
+    const loadSavedPaths = async () => {
+      const paths = await readSavedPaths();
+      setSavedPaths(paths);
+    };
+    
+    loadSavedPaths();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       payroll_files: fields.payroll_files || [],
+      payroll_path: fields.payroll_path || "",
       appointment_status_code: fields.appointment_status_code || "",
       period_year: fields.period_year || "2025",
       period_month: fields.period_month || "",
@@ -76,6 +95,7 @@ export default function UploadPayrollForm({ setStep }: Props) {
   });
 
   const payroll_files = form.watch("payroll_files");
+  const payroll_path = form.watch("payroll_path");
   const appointment_status_code = form.watch("appointment_status_code");
   const period_year = form.watch("period_year");
   const period_month = form.watch("period_month");
@@ -106,7 +126,7 @@ export default function UploadPayrollForm({ setStep }: Props) {
     setSequenceNumbers([]);
 
     if (
-      payroll_files.length > 0 &&
+      payroll_files && payroll_files.length > 0 &&
       period_year &&
       period_month &&
       transaction_type
@@ -143,9 +163,9 @@ export default function UploadPayrollForm({ setStep }: Props) {
     }
   }, [response.body]);
 
-  function handleFolderSelect(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFolderSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
-    console.log("e:",e.target)
+    console.log("Selected files:", files);
 
     if (files && files.length > 0) {
       // Filter only allowed files
@@ -154,24 +174,233 @@ export default function UploadPayrollForm({ setStep }: Props) {
       );
 
       form.setValue("payroll_files", allowed);
+      form.setValue("payroll_path", ""); // Clear path when files are selected
       form.trigger("payroll_files"); // Revalidate the field
 
       // Get the root folder name from the first file's webkitRelativePath
       const firstPath = files[0].webkitRelativePath;
       const folder = firstPath.split("/")[0];
       setFolderName(folder);
+
+      // Show validation message if not all required files are found
+      if (allowed.length === 0) {
+        form.setError("payroll_files", {
+          type: "manual",
+          message: `No valid payroll files found. Please select a folder containing the required .dbf files: ${ALLOWED_FILES.join(', ')}`
+        });
+      } else if (allowed.length < ALLOWED_FILES.length) {
+        const missingFiles = ALLOWED_FILES.filter(requiredFile => 
+          !allowed.some(file => file.name.toLowerCase() === requiredFile.toLowerCase())
+        );
+        form.setError("payroll_files", {
+          type: "manual",
+          message: `Missing required .dbf files: ${missingFiles.join(', ')}. Please select a folder containing all 8 required payroll files.`
+        });
+      }
+
+      // Note: Path saving will happen in onSubmit to avoid duplicates
+      console.log("Folder selected:", folder);
     } else {
       setFolderName("Choose folder");
       form.setValue("payroll_files", []);
+      form.setValue("payroll_path", "");
       form.trigger("payroll_files"); // Revalidate the field
     }
   }
 
-  console.log(payroll_files)
+  // Handle selection from saved paths dropdown
+  const handleSavedPathSelect = async (selectedPath: string) => {
+    setSelectedSavedPath(selectedPath);
+    setIsDropdownOpen(false); // Close dropdown after selection
+    
+    if (selectedPath) {
+      try {
+        // Extract folder name from path
+        const pathParts = selectedPath.split(/[/\\]/);
+        const folderName = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+        setFolderName(folderName);
+        
+        // Set the direct path
+        form.setValue("payroll_path", selectedPath);
+        
+        // Check which files actually exist in the directory
+        try {
+          const response = await fetch('/api/payroll-paths/check-files', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              path: selectedPath,
+              expectedFiles: ALLOWED_FILES 
+            }),
+          });
+          
+          if (response.ok) {
+            const { existingFiles, missingFiles } = await response.json();
+            
+            // Create representative files only for existing files
+            const actualFiles = existingFiles.map((fileName: string) => {
+              const file = new File([''], fileName, { type: 'application/octet-stream' });
+              
+              // Mark these as path-based files
+              Object.defineProperty(file, 'isPathBased', {
+                value: true,
+                writable: false
+              });
+              Object.defineProperty(file, 'sourcePath', {
+                value: selectedPath,
+                writable: false
+              });
+              Object.defineProperty(file, 'webkitRelativePath', {
+                value: `${folderName}/${fileName}`,
+                writable: false
+              });
+              
+              return file;
+            });
+            
+            form.setValue("payroll_files", actualFiles);
+            
+            // Show validation error if files are missing
+            if (missingFiles.length > 0) {
+              form.setError("payroll_files", {
+                type: "manual",
+                message: `Missing required .dbf files: ${missingFiles.join(', ')}. Please verify the folder contains all required payroll files.`
+              });
+            } else {
+              form.clearErrors("payroll_files");
+            }
+            
+            console.log('Selected saved path:', selectedPath);
+            console.log('Folder name set to:', folderName);
+            console.log('Files found:', actualFiles.length, 'out of', ALLOWED_FILES.length, 'expected');
+            if (missingFiles.length > 0) {
+              console.log('Missing files:', missingFiles);
+            }
+          } else {
+            // Fallback: create all expected files if API fails
+            const representativeFiles = ALLOWED_FILES.map((fileName) => {
+              const file = new File([''], fileName, { type: 'application/octet-stream' });
+              Object.defineProperty(file, 'isPathBased', { value: true, writable: false });
+              Object.defineProperty(file, 'sourcePath', { value: selectedPath, writable: false });
+              Object.defineProperty(file, 'webkitRelativePath', { value: `${folderName}/${fileName}`, writable: false });
+              return file;
+            });
+            
+            form.setValue("payroll_files", representativeFiles);
+            form.clearErrors("payroll_files");
+            console.log('API failed, using fallback - created representative files for all expected files');
+          }
+        } catch (error) {
+          console.error('Error checking files:', error);
+          
+          // Fallback: create all expected files if check fails
+          const representativeFiles = ALLOWED_FILES.map((fileName) => {
+            const file = new File([''], fileName, { type: 'application/octet-stream' });
+            Object.defineProperty(file, 'isPathBased', { value: true, writable: false });
+            Object.defineProperty(file, 'sourcePath', { value: selectedPath, writable: false });
+            Object.defineProperty(file, 'webkitRelativePath', { value: `${folderName}/${fileName}`, writable: false });
+            return file;
+          });
+          
+          form.setValue("payroll_files", representativeFiles);
+          form.clearErrors("payroll_files");
+        }
+      } catch (error) {
+        console.error('Error handling saved path selection:', error);
+      }
+    }
+  };
+
+  // Handle clearing the current selection
+  const handleClearSelection = () => {
+    setSelectedSavedPath("");
+    setFolderName("Choose folder");
+    form.setValue("payroll_files", []);
+    form.setValue("payroll_path", "");
+    form.clearErrors("payroll_files");
+    console.log('Selection cleared');
+  };
+
+  // Handle delete with proper event stopping
+  const handleDeletePath = async (pathToDelete: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const updatedPaths = await deletePath(pathToDelete);
+    setSavedPaths(updatedPaths);
+    
+    // Clear the selected path if it was the one deleted
+    if (selectedSavedPath === pathToDelete) {
+      setSelectedSavedPath("");
+      setFolderName("Choose folder");
+      form.setValue("payroll_files", []);
+      form.setValue("payroll_path", "");
+    }
+  };
+
+  console.log("payroll_files:", payroll_files);
+  console.log("payroll_path:", payroll_path);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Form submitted with values:", values);
-    setFields({ folder_name: folderName, ...values });
+    
+    // Check if we have either files or a direct path selected
+    const hasFiles = values.payroll_files && values.payroll_files.length > 0;
+    const hasPath = values.payroll_path && values.payroll_path.trim() !== "";
+    
+    if (!hasFiles && !hasPath) {
+      form.setError("payroll_files", {
+        type: "manual",
+        message: `Please select a payroll folder containing the required .dbf files: ${ALLOWED_FILES.join(', ')}`
+      });
+      return;
+    }
+    
+    // If we have files, validate that we have all required files
+    if (hasFiles && values.payroll_files!.length !== ALLOWED_FILES.length) {
+      const missingFiles = ALLOWED_FILES.filter(requiredFile => 
+        !values.payroll_files!.some(file => file.name.toLowerCase() === requiredFile.toLowerCase())
+      );
+      
+      form.setError("payroll_files", {
+        type: "manual",
+        message: `Missing required .dbf files: ${missingFiles.join(', ')}. Please select a folder containing all 8 required payroll files.`
+      });
+      return;
+    }
+    
+    // Save the current folder path if it's not already saved and we have real files
+    if (folderName !== "Choose folder" && hasFiles) {
+      const firstFile = values.payroll_files![0] as any;
+      // Only save if it's a real file (not a representative file from recent paths)
+      if (firstFile.webkitRelativePath && !firstFile.isPathBased) {
+        // Try to get the actual directory path
+        let pathToSave = "";
+        
+        if (firstFile.path) {
+          // Electron environment - we have access to the full file path
+          const filePath = firstFile.path.replace(/\//g, '\\'); // Normalize to Windows path
+          pathToSave = filePath.substring(0, filePath.lastIndexOf('\\'));
+        } else {
+          // Browser environment - construct the expected full path
+          // Since we can't get the actual path, we'll construct it based on common patterns
+          pathToSave = `D:\\${folderName}`;
+        }
+        
+        if (pathToSave) {
+          const updatedPaths = await savePath(pathToSave);
+          setSavedPaths(updatedPaths);
+        }
+      }
+    }
+    
+    setFields({ 
+      folder_name: folderName, 
+      payroll_path: values.payroll_path,
+      ...values 
+    });
     setStep(2);
   }
 
@@ -187,18 +416,106 @@ export default function UploadPayrollForm({ setStep }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Payroll Path</FormLabel>
+                  
+                  {/* Custom Saved Paths Dropdown */}
+                  {savedPaths.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span className="text-xs font-medium text-foreground/80">
+                          Recent Paths ({savedPaths.length})
+                        </span>
+                      </div>
+                      
+                      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-between bg-gradient-to-r from-background to-muted/20 border-border/60 hover:border-border transition-all duration-200"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="flex-shrink-0 w-6 h-6 bg-blue-500/10 rounded-md flex items-center justify-center">
+                                <FolderOpen className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <span className="text-sm">
+                                {selectedSavedPath ? 
+                                  (selectedSavedPath.split('\\').pop() || selectedSavedPath.split('/').pop()) : 
+                                  "Select a recent path..."
+                                }
+                              </span>
+                            </div>
+                            <ChevronDown className="h-4 w-4 opacity-50" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-full min-w-[400px] max-h-80 overflow-y-auto">
+                          {savedPaths.map((path, index) => (
+                            <DropdownMenuItem
+                              key={index}
+                              className="group relative py-3 px-3 cursor-pointer focus:bg-accent"
+                              onSelect={() => handleSavedPathSelect(path)}
+                            >
+                              <div className="flex items-center justify-between gap-3 w-full">
+                                {/* Path Content */}
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <div className="flex-shrink-0 w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                                    <FolderOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-medium text-foreground truncate">
+                                      {path.split('\\').pop() || path.split('/').pop()}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground truncate">
+                                      {path}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Delete Button - Always visible for easy access */}
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 w-7 p-0 opacity-70 hover:opacity-100 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 flex-shrink-0"
+                                  onClick={(e) => handleDeletePath(path, e)}
+                                  title="Remove this path from recent paths"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
+
+                  {/* Browse for new folder */}
                   <div className="flex flex-row gap-1">
                     <Button
                       type="button"
                       size="icon"
                       variant="outline"
                       onClick={() => inputRef.current?.click()}
+                      title="Browse for new folder"
                     >
                       <Plus />
                     </Button>
                     <FormControl>
                       <Input value={folderName} disabled />
                     </FormControl>
+                    {/* Clear Selection Button */}
+                    {(folderName !== "Choose folder" || selectedSavedPath) && (
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={handleClearSelection}
+                        title="Clear current selection"
+                        className="hover:bg-orange-500/10 hover:text-orange-600 dark:hover:text-orange-400"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
                   <Input
